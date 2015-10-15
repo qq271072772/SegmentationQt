@@ -41,7 +41,10 @@ namespace IS {
 
 	IplImage* SegmentManager::LoadImage(char* filename) {
 		IplImage* ret = cvLoadImage(filename, CV_LOAD_IMAGE_UNCHANGED);
-		activeImgs.push_back(ret);
+		if (ret != NULL){
+			cvCvtColor(ret, ret, CV_BGR2RGB);
+			activeImgs.push_back(ret);
+		}
 		return ret;
 	}
 	void SegmentManager::ReleaseImage(IplImage* img) {

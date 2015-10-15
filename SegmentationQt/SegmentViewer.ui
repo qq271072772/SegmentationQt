@@ -6,70 +6,163 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>903</width>
-    <height>542</height>
+    <width>1371</width>
+    <height>801</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>SegmentationQt</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QScrollArea" name="scrollview_images">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>8</y>
-      <width>881</width>
-      <height>461</height>
-     </rect>
-    </property>
-    <property name="verticalScrollBarPolicy">
-     <enum>Qt::ScrollBarAlwaysOn</enum>
-    </property>
-    <property name="horizontalScrollBarPolicy">
-     <enum>Qt::ScrollBarAlwaysOn</enum>
-    </property>
-    <property name="widgetResizable">
-     <bool>true</bool>
-    </property>
-    <widget class="QWidget" name="scrollAreaWidgetContents">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>856</width>
-       <height>436</height>
-      </rect>
-     </property>
-     <widget class="QLabel" name="label_gray">
-      <property name="geometry">
-       <rect>
-        <x>240</x>
-        <y>30</y>
-        <width>451</width>
-        <height>451</height>
-       </rect>
-      </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QScrollArea" name="scrollview_gray">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>65536</width>
+          <height>65536</height>
+         </size>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::WheelFocus</enum>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Sunken</enum>
+        </property>
+        <property name="lineWidth">
+         <number>1</number>
+        </property>
+        <property name="verticalScrollBarPolicy">
+         <enum>Qt::ScrollBarAsNeeded</enum>
+        </property>
+        <property name="horizontalScrollBarPolicy">
+         <enum>Qt::ScrollBarAsNeeded</enum>
+        </property>
+        <property name="sizeAdjustPolicy">
+         <enum>QAbstractScrollArea::AdjustIgnored</enum>
+        </property>
+        <property name="widgetResizable">
+         <bool>false</bool>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <widget class="QWidget" name="pool_gray">
+         <property name="geometry">
+          <rect>
+           <x>15</x>
+           <y>111</y>
+           <width>640</width>
+           <height>480</height>
+          </rect>
+         </property>
+         <widget class="QLabel" name="label_gray">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>640</width>
+            <height>480</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Label_Gray</string>
+          </property>
+          <property name="scaledContents">
+           <bool>true</bool>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+         <zorder>label_gray</zorder>
+         <zorder>horizontalLayoutWidget</zorder>
+         <zorder>label_debug</zorder>
+         <zorder>scrollview_division</zorder>
+        </widget>
+       </widget>
+      </item>
+      <item>
+       <widget class="QScrollArea" name="scrollview_division">
+        <property name="maximumSize">
+         <size>
+          <width>65536</width>
+          <height>65536</height>
+         </size>
+        </property>
+        <property name="widgetResizable">
+         <bool>false</bool>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <widget class="QWidget" name="pool_division">
+         <property name="geometry">
+          <rect>
+           <x>15</x>
+           <y>111</y>
+           <width>640</width>
+           <height>480</height>
+          </rect>
+         </property>
+         <widget class="QLabel" name="label_division">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>640</width>
+            <height>480</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Label_Division</string>
+          </property>
+          <property name="scaledContents">
+           <bool>true</bool>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+         <zorder>scrollview_gray</zorder>
+         <zorder>scrollview_gray</zorder>
+         <zorder>scrollview_gray</zorder>
+         <zorder>label_division</zorder>
+        </widget>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_debug">
       <property name="text">
-       <string>Label_Gray</string>
+       <string>label_debug</string>
       </property>
-      <property name="scaledContents">
+      <property name="wordWrap">
        <bool>true</bool>
       </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
      </widget>
-    </widget>
-   </widget>
+    </item>
+   </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>903</width>
-     <height>27</height>
+     <width>1371</width>
+     <height>24</height>
     </rect>
    </property>
   </widget>
