@@ -4,10 +4,11 @@
 #include <QtWidgets/QMainWindow>
 #include <qevent.h>
 #include <QtWidgets/qscrollbar.h>
+#include <qdebug.h>
 #include "ui_SegmentViewer.h"
 #include <opencv2/core/core.hpp> 
 #include <vector>
-#include <map>
+#include "Utility.h"
 
 namespace IS{
 
@@ -60,18 +61,17 @@ namespace IS{
 
 		void RegisterImage(int id, IplImage* cvImg);
 
-		void DebugLog(float x);
-		void DebugLog(char* msg);
-
 	private:
 
 		static SegmentViewer* instance;
 
 		Ui::SegmentationQtClass ui;
 
-		std::map<int, ImageData*> images;
+		Dictionary<int, ImageData*> images;
 
-		void DealImageEvent(QObject *obj, QEvent* ev);
+		void DealViewEvent(QObject *obj, QEvent* ev);
+		int DealClickEvent(int id,QMouseEvent* ev);
+
 		void ScaleImage(int id, float delta);
 		void ScrollImage(int id, float deltaX, float deltaY);
 

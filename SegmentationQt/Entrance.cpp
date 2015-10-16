@@ -24,7 +24,7 @@ int main(int argCnt, char** args) {
 
 	SegmentViewer* segViewer = SegmentViewer::Instance();
 
-	segViewer->RegisterImage(SegmentViewer::ID_SRC, src);
+	segViewer->RegisterImage(SegmentViewer::ID_GRAY, gray);
 	segViewer->RegisterImage(SegmentViewer::ID_DIVISION, division);
 
 	segViewer->show();

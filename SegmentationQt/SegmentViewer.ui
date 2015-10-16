@@ -13,10 +13,13 @@
   <property name="windowTitle">
    <string>SegmentationQt</string>
   </property>
+  <property name="tabShape">
+   <enum>QTabWidget::Rounded</enum>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout">
+     <layout class="QHBoxLayout" name="layout_images">
       <item>
        <widget class="QScrollArea" name="scrollview_gray">
         <property name="sizePolicy">
@@ -62,7 +65,7 @@
          <property name="geometry">
           <rect>
            <x>15</x>
-           <y>111</y>
+           <y>107</y>
            <width>640</width>
            <height>480</height>
           </rect>
@@ -86,10 +89,6 @@
            <set>Qt::AlignCenter</set>
           </property>
          </widget>
-         <zorder>label_gray</zorder>
-         <zorder>horizontalLayoutWidget</zorder>
-         <zorder>label_debug</zorder>
-         <zorder>scrollview_division</zorder>
         </widget>
        </widget>
       </item>
@@ -111,7 +110,7 @@
          <property name="geometry">
           <rect>
            <x>15</x>
-           <y>111</y>
+           <y>107</y>
            <width>640</width>
            <height>480</height>
           </rect>
@@ -135,22 +134,15 @@
            <set>Qt::AlignCenter</set>
           </property>
          </widget>
-         <zorder>scrollview_gray</zorder>
-         <zorder>scrollview_gray</zorder>
-         <zorder>scrollview_gray</zorder>
-         <zorder>label_division</zorder>
         </widget>
        </widget>
       </item>
      </layout>
     </item>
     <item>
-     <widget class="QLabel" name="label_debug">
-      <property name="text">
-       <string>label_debug</string>
-      </property>
-      <property name="wordWrap">
-       <bool>true</bool>
+     <widget class="QSlider" name="horizontalSlider">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
       </property>
      </widget>
     </item>
@@ -165,6 +157,12 @@
      <height>24</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menu_file">
+    <property name="title">
+     <string>File</string>
+    </property>
+   </widget>
+   <addaction name="menu_file"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">

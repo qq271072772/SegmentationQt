@@ -206,6 +206,7 @@
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_SegmentViewer.h" />
     <ClInclude Include="SegmentManager.h" />
+    <ClInclude Include="Utility.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="segmentationqt.qrc">

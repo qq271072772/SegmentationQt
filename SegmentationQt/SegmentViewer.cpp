@@ -1,4 +1,5 @@
 #include "SegmentViewer.h"
+#include "SegmentManager.h"
 
 namespace IS{
 
@@ -9,6 +10,7 @@ namespace IS{
 		ui.setupUi(this);
 		ui.scrollview_gray->viewport()->installEventFilter(this);
 		ui.scrollview_division->viewport()->installEventFilter(this);
+		ui.label_gray->installEventFilter(this);
 	}
 	SegmentViewer::~SegmentViewer()
 	{
@@ -35,8 +37,12 @@ namespace IS{
 		if (cvImg == NULL)
 			return;
 
-		if (images.find(id) != images.end())
-			return;
+		float oldScale = 1;
+		if (images.ContainsKey(id)){
+			oldScale = images(id)->scale;
+			delete images[id];
+			images.Remove(id);
+		}
 
 		QImage qImg;
 		switch (id)
@@ -68,39 +74,31 @@ namespace IS{
 		default:
 			break;
 		}
+		if (oldScale != 1)
+			ScaleImage(id, oldScale - 1);
 	}
 	void SegmentViewer::ReleaseAll(){
-		std::map<int, ImageData*>::iterator ite;
-		for (ite = images.begin(); ite != images.end(); ite++){
-			delete ite->second;
+		vector<int> keys = images.Keys();
+		for (int i = 0; i < keys.size(); i++){
+			delete images[keys[i]];
 		}
-		images.clear();
+		images.Clear();
 		delete this;
-	}
-
-	void SegmentViewer::DebugLog(float x){
-		char msg[20];
-		sprintf(msg, "%5.3f", x);
-		DebugLog(msg);
-	}
-	void SegmentViewer::DebugLog(char* msg){
-		ui.label_debug->setText(ui.label_debug->text() + "   " + msg);
 	}
 
 	//Private
 
 	SegmentViewer* SegmentViewer::instance = NULL;
 
-	void SegmentViewer::DealImageEvent(QObject *obj, QEvent* ev){
+	void SegmentViewer::DealViewEvent(QObject *obj, QEvent* ev){
 		switch (ev->type()){
 		case QEvent::Wheel:
 			{
 				QWheelEvent* wev = static_cast<QWheelEvent*>(ev);
 				float delta = wev->angleDelta().y()*WHEEL_SENSIBILITY;
-				std::map<int, ImageData*>::iterator ite;
-				for (ite = images.begin(); ite != images.end(); ite++){
-						ScaleImage(ite->second->id, delta);
-				}
+				vector<int> keys = images.Keys();
+				for (int i = 0; i < keys.size(); i++)
+					ScaleImage(images(keys[i])->id, delta);
 			}
 			break;
 		case QEvent::MouseButtonPress:
@@ -119,10 +117,9 @@ namespace IS{
 				QMouseEvent* mev = (QMouseEvent*)ev;
 				float deltaX = (mev->x() - lastMousePos.x())*SCROLL_SENSIBILITY;
 				float deltaY = (mev->y() - lastMousePos.y())*SCROLL_SENSIBILITY;
-				std::map<int, ImageData*>::iterator ite;
-				for (ite = images.begin(); ite != images.end(); ite++){
-						ScrollImage(ite->second->id, deltaX, deltaY);
-				}
+				vector<int> keys = images.Keys();
+				for (int i = 0; i < keys.size(); i++)
+					ScrollImage(images(keys[i])->id, deltaX, deltaY);
 				lastMousePos.setX(mev->x());
 				lastMousePos.setY(mev->y());
 			}
@@ -132,8 +129,31 @@ namespace IS{
 		}
 
 	}
+	int SegmentViewer::DealClickEvent(int id,QMouseEvent* ev){
+		if (!images.ContainsKey(id) || id != ID_GRAY)
+			return -1;
+		ImageData* data = images[id];
+		QImage image = data->label->pixmap()->toImage();
+		uchar bright = qGray(image.pixel(ev->x() / data->scale, ev->y() / data->scale));
+
+		SegmentManager* segMgr = SegmentManager::Instance();
+		IplImage* gray = segMgr->GrayImage();
+
+		if (ev->button() == Qt::LeftButton){
+			IplImage* division = segMgr->GetThreeDivision(gray, bright, segMgr->BottomValue(), segMgr->TopTolerance(), segMgr->BottomTolerance());
+			RegisterImage(ID_DIVISION, division);
+			return 0;
+		}
+		else if (ev->button() == Qt::RightButton){
+			IplImage* division = segMgr->GetThreeDivision(gray, segMgr->TopValue(), bright, segMgr->TopTolerance(), segMgr->BottomTolerance());
+			RegisterImage(ID_DIVISION, division);
+			return 0;
+		}
+		return -1;
+	}
+
 	void SegmentViewer::ScaleImage(int id ,float delta){
-		if (images.find(id) == images.end()){
+		if (!images.ContainsKey(id)){
 			//DebugLog((char*)("Image id not exist(id:" + id + ')'));
 			return;
 		}
@@ -149,7 +169,7 @@ namespace IS{
 		data->pool->resize(newWidth, newHeight);
 	}
 	void SegmentViewer::ScrollImage(int id, float deltaX, float deltaY){
-		if (images.find(id) == images.end()){
+		if (!images.ContainsKey(id)){
 			return;
 		}
 		ImageData* data = images[id];
@@ -160,11 +180,15 @@ namespace IS{
 	//Protected
 
 	bool SegmentViewer::eventFilter(QObject *obj, QEvent* ev){
-		std::map<int, ImageData*>::iterator ite;
-		for (ite = images.begin(); ite != images.end(); ite++){
-			if (obj == ite->second->scroll->viewport()){
-				DealImageEvent(obj, ev);
+		vector<int> keys = images.Keys();
+		for (int i = 0; i < keys.size(); i++){
+			if (obj == images(keys[i])->scroll->viewport()){
+				DealViewEvent(obj, ev);
 				return true;
+			}
+			if (obj == images(keys[i])->label && ev->type() == QEvent::MouseButtonRelease){
+				if (DealClickEvent(images(keys[i])->id, (QMouseEvent*)ev) >= 0)
+					return false;
 			}
 		}
 		return false;
