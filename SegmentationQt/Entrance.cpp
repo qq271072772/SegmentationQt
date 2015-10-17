@@ -13,12 +13,6 @@ int main(int argCnt, char** args) {
 	IplImage* src = segMgr->LoadImage(SegmentManager::debugModeOn ? "E:\\Project\\SegmentationQt\\Assets\\2.jpeg" : args[1]);
 	IplImage* gray = segMgr->ConvertToGrayImage(src);
 	IplImage* division = segMgr->GetThreeDivision(gray, 50, 100, 30, 20);
-	//segMgr->ShowImageWin((char*)(segMgr->SRC_WIN), src);
-	//segMgr->ShowImageWin((char*)(segMgr->GRAY_WIN), gray);
-	//segMgr->ShowImageWin((char*)(segMgr->DIVISION_WIN), division);
-	//segMgr->RegisterGrayWinEvent((char*)(segMgr->GRAY_WIN));
-	//segMgr->WaitKey(0);
-	//segMgr->ReleaseAll();
 
 	QApplication app(argCnt, args);
 

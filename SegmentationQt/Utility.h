@@ -15,12 +15,15 @@ namespace IS{
 		private:
 			iterator ite;
 			std::map<Key, Value>& mp;
+			Key key;
 		public:
-			Item(map<Key,Value>& m , iterator i) : mp(m),ite(i){};
+			Item(map<Key,Value>& m , iterator i,Key k) : mp(m),ite(i),key(k){};
 			void operator=(Value i){
-				mp[ite->first] = i;
+				mp[ite == mp.end() ? key : ite->first] = i;
 			}
 			operator Value(){
+				if (ite == mp.end())
+					throw "Key not found exception.";
 				return ite->second;
 			}
 		};
@@ -46,14 +49,9 @@ namespace IS{
 		}
 		Item Get(Key key){
 			iterator ite = find(key);
-			if (ite == end())
-				throw "Key not found in Item() call";
-			return (Item(*this, ite));
+			return (Item(*this, ite,key));
 		}
 		Item operator[](Key key){
-			//Error : int x = dict[3],key = 3 not in dict but added
-			//if (!ContainsKey(key))
-			//	Add(key, NULL);
 			return Get(key);
 		}
 		Value operator()(Key key){
@@ -70,6 +68,7 @@ namespace IS{
 			return keys;
 		}
 
+	protected:
 		static Key getKEY(std::pair<Key, Value> p)
 		{
 			return p.first;
