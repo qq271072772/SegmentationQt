@@ -6,6 +6,84 @@
 #include<vector>
 
 namespace IS{
+
+	template<typename Value>
+	class List : std::vector<Value>{
+	private:
+
+		class Item{
+		private:
+			iterator ite;
+		public:
+			Item(iterator i) :ite(i){};
+			void operator=(Value v){
+				*ite = v;
+			}
+			operator Value(){
+				return *ite;
+			}
+		};
+
+		int Find(Value value){
+			int index = 0;
+			iterator<Value> ite;
+			for (ite = begin(); ite != end(); ite++){
+				if (*ite == value){
+					return index;
+				}
+				index++;
+			}
+			return -1;
+		}
+
+	public:
+		void Add(Value value){
+			vector<Value> v;
+
+			push_back(value);
+		}
+		void Insert(Value value, int index){
+			if (index < 0)
+				index = 0;
+			if (index = size())
+				index = size();
+			insert(begin() + index, value);
+		}
+		bool Contains(Value value){
+			return Find(value) >= 0;
+		}
+		void Remove(Value value){
+			int index = Find(value);
+			if (index < 0)
+				return;
+			erase(begin() + index);
+		}
+		void RemoveAt(int index){
+			if (index >= 0 && index < size())
+				erase(begin() + index);
+		}
+		int Count(){
+			return size();
+		}
+		void Clear(){
+			clear();
+		}
+
+		Item operator[](int index){
+			if (index < 0 || index >= size())
+				throw "Index out of range exception";
+			return (Item(begin() + index));
+		}
+		Value Get(int index){
+			return static_cast<Value>(Item(begin() + index));
+		}
+		//Value operator()(int index){
+		//	if (index < 0 || index >= size())
+		//		throw "Index out of range exception";
+		//	return (*(begin() + index));
+		//}
+	};
+
 	template <typename Key, typename Value>
 	class Dictionary : std::map<Key,Value>{
 
@@ -67,10 +145,13 @@ namespace IS{
 			return static_cast<Value>(item);
 		}
 
-		std::vector<Key>Keys() 
+		List<Key> Keys()
 		{
-			std::vector<Key>keys;
-			std::transform(begin(), end(), std::back_inserter(keys), getKEY);
+			List<Key>keys;
+			map<Key,Value>::iterator ite;
+			for (ite = begin(); ite != end(); ite++){
+				keys.Add(ite->first);
+			}
 			return keys;
 		}
 
@@ -81,79 +162,6 @@ namespace IS{
 		}
 	};
 
-	template<typename Value>
-	class List : std::vector<Value>{
-	private:
-
-		class Item{
-		private:
-			iterator ite;
-		public :
-			Item(iterator i) :ite(i){};
-			void operator=(Value v){
-				*ite = v;
-			}
-			operator Value(){
-				return *ite;
-			}
-		};
-
-		int Find(Value value){
-			int index = 0;
-			iterator<Value> ite;
-			for (ite = begin(); ite != end(); ite++){
-				if (*ite == value){
-					return index;
-				}
-				index++;
-			}
-			return -1;
-		}
-
-	public:
-		void Add(Value value){
-			vector<Value> v;
-
-			push_back(value);
-		}
-		void Insert(Value value, int index){
-			if (index < 0)
-				index = 0;
-			if (index = size())
-				index = size();
-			insert(begin() + index, value);
-		}
-		bool Contains(Value value){
-			return Find(value) >= 0;
-		}
-		void Remove(Value value){
-			int index = Find(value);
-			if (index < 0)
-				return;
-			erase(begin() + index);
-		}
-		void RemoveAt(int index){
-			if (index >= 0 && index < size())
-				erase(begin() + index);
-		}
-		int Count(){
-			return size();
-		}
-		void Clear(){
-			clear();
-		}
-
-		Item operator[](int index){
-			if (index < 0 || index >= size())
-				throw "Index out of range exception";
-			return (Item(begin() + index));
-		}
-		//Value operator()(int index){
-		//	if (index < 0 || index >= size())
-		//		throw "Index out of range exception";
-		//	return (*(begin() + index));
-		//}
-	};
 }
 
 #endif

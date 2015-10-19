@@ -65,7 +65,7 @@
          <property name="geometry">
           <rect>
            <x>15</x>
-           <y>107</y>
+           <y>120</y>
            <width>640</width>
            <height>480</height>
           </rect>
@@ -89,6 +89,12 @@
            <set>Qt::AlignCenter</set>
           </property>
          </widget>
+         <zorder>label_gray</zorder>
+         <zorder>scrollview_division</zorder>
+         <zorder>scrollview_division</zorder>
+         <zorder>scrollview_division</zorder>
+         <zorder>scrollview_division</zorder>
+         <zorder>scrollview_division</zorder>
         </widget>
        </widget>
       </item>
@@ -110,7 +116,7 @@
          <property name="geometry">
           <rect>
            <x>15</x>
-           <y>107</y>
+           <y>120</y>
            <width>640</width>
            <height>480</height>
           </rect>
@@ -139,13 +145,6 @@
       </item>
      </layout>
     </item>
-    <item>
-     <widget class="QSlider" name="horizontalSlider">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -162,7 +161,18 @@
      <string>File</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <addaction name="tools_featureCatchOn"/>
+    <addaction name="tools_GCD_catchON"/>
+    <addaction name="tools_GCD_PR_catchON"/>
+    <addaction name="separator"/>
+    <addaction name="actionGCD_Genrate"/>
+   </widget>
    <addaction name="menu_file"/>
+   <addaction name="menuTools"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -173,6 +183,35 @@
    </attribute>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <action name="tools_featureCatchOn">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>FeatureCatchON</string>
+   </property>
+  </action>
+  <action name="tools_GCD_catchON">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>GCD_CatchON</string>
+   </property>
+  </action>
+  <action name="tools_GCD_PR_catchON">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>GCD_PR_CatchON</string>
+   </property>
+  </action>
+  <action name="actionGCD_Genrate">
+   <property name="text">
+    <string>GCD_Genrate</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>

@@ -20,7 +20,6 @@
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QScrollArea>
-#include <QtWidgets/QSlider>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QToolBar>
 #include <QtWidgets/QVBoxLayout>
@@ -31,6 +30,10 @@ QT_BEGIN_NAMESPACE
 class Ui_SegmentationQtClass
 {
 public:
+    QAction *tools_featureCatchOn;
+    QAction *tools_GCD_catchON;
+    QAction *tools_GCD_PR_catchON;
+    QAction *actionGCD_Genrate;
     QWidget *centralWidget;
     QVBoxLayout *verticalLayout;
     QHBoxLayout *layout_images;
@@ -40,9 +43,9 @@ public:
     QScrollArea *scrollview_division;
     QWidget *pool_division;
     QLabel *label_division;
-    QSlider *horizontalSlider;
     QMenuBar *menuBar;
     QMenu *menu_file;
+    QMenu *menuTools;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
 
@@ -52,6 +55,17 @@ public:
             SegmentationQtClass->setObjectName(QStringLiteral("SegmentationQtClass"));
         SegmentationQtClass->resize(1371, 801);
         SegmentationQtClass->setTabShape(QTabWidget::Rounded);
+        tools_featureCatchOn = new QAction(SegmentationQtClass);
+        tools_featureCatchOn->setObjectName(QStringLiteral("tools_featureCatchOn"));
+        tools_featureCatchOn->setCheckable(true);
+        tools_GCD_catchON = new QAction(SegmentationQtClass);
+        tools_GCD_catchON->setObjectName(QStringLiteral("tools_GCD_catchON"));
+        tools_GCD_catchON->setCheckable(true);
+        tools_GCD_PR_catchON = new QAction(SegmentationQtClass);
+        tools_GCD_PR_catchON->setObjectName(QStringLiteral("tools_GCD_PR_catchON"));
+        tools_GCD_PR_catchON->setCheckable(true);
+        actionGCD_Genrate = new QAction(SegmentationQtClass);
+        actionGCD_Genrate->setObjectName(QStringLiteral("actionGCD_Genrate"));
         centralWidget = new QWidget(SegmentationQtClass);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         verticalLayout = new QVBoxLayout(centralWidget);
@@ -80,13 +94,14 @@ public:
         scrollview_gray->setAlignment(Qt::AlignCenter);
         pool_gray = new QWidget();
         pool_gray->setObjectName(QStringLiteral("pool_gray"));
-        pool_gray->setGeometry(QRect(15, 107, 640, 480));
+        pool_gray->setGeometry(QRect(15, 120, 640, 480));
         label_gray = new QLabel(pool_gray);
         label_gray->setObjectName(QStringLiteral("label_gray"));
         label_gray->setGeometry(QRect(0, 0, 640, 480));
         label_gray->setScaledContents(true);
         label_gray->setAlignment(Qt::AlignCenter);
         scrollview_gray->setWidget(pool_gray);
+        label_gray->raise();
 
         layout_images->addWidget(scrollview_gray);
 
@@ -97,7 +112,7 @@ public:
         scrollview_division->setAlignment(Qt::AlignCenter);
         pool_division = new QWidget();
         pool_division->setObjectName(QStringLiteral("pool_division"));
-        pool_division->setGeometry(QRect(15, 107, 640, 480));
+        pool_division->setGeometry(QRect(15, 120, 640, 480));
         label_division = new QLabel(pool_division);
         label_division->setObjectName(QStringLiteral("label_division"));
         label_division->setGeometry(QRect(0, 0, 640, 480));
@@ -110,18 +125,14 @@ public:
 
         verticalLayout->addLayout(layout_images);
 
-        horizontalSlider = new QSlider(centralWidget);
-        horizontalSlider->setObjectName(QStringLiteral("horizontalSlider"));
-        horizontalSlider->setOrientation(Qt::Horizontal);
-
-        verticalLayout->addWidget(horizontalSlider);
-
         SegmentationQtClass->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(SegmentationQtClass);
         menuBar->setObjectName(QStringLiteral("menuBar"));
         menuBar->setGeometry(QRect(0, 0, 1371, 24));
         menu_file = new QMenu(menuBar);
         menu_file->setObjectName(QStringLiteral("menu_file"));
+        menuTools = new QMenu(menuBar);
+        menuTools->setObjectName(QStringLiteral("menuTools"));
         SegmentationQtClass->setMenuBar(menuBar);
         mainToolBar = new QToolBar(SegmentationQtClass);
         mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
@@ -131,6 +142,12 @@ public:
         SegmentationQtClass->setStatusBar(statusBar);
 
         menuBar->addAction(menu_file->menuAction());
+        menuBar->addAction(menuTools->menuAction());
+        menuTools->addAction(tools_featureCatchOn);
+        menuTools->addAction(tools_GCD_catchON);
+        menuTools->addAction(tools_GCD_PR_catchON);
+        menuTools->addSeparator();
+        menuTools->addAction(actionGCD_Genrate);
 
         retranslateUi(SegmentationQtClass);
 
@@ -140,9 +157,14 @@ public:
     void retranslateUi(QMainWindow *SegmentationQtClass)
     {
         SegmentationQtClass->setWindowTitle(QApplication::translate("SegmentationQtClass", "SegmentationQt", 0));
+        tools_featureCatchOn->setText(QApplication::translate("SegmentationQtClass", "FeatureCatchON", 0));
+        tools_GCD_catchON->setText(QApplication::translate("SegmentationQtClass", "GCD_CatchON", 0));
+        tools_GCD_PR_catchON->setText(QApplication::translate("SegmentationQtClass", "GCD_PR_CatchON", 0));
+        actionGCD_Genrate->setText(QApplication::translate("SegmentationQtClass", "GCD_Genrate", 0));
         label_gray->setText(QApplication::translate("SegmentationQtClass", "Label_Gray", 0));
         label_division->setText(QApplication::translate("SegmentationQtClass", "Label_Division", 0));
         menu_file->setTitle(QApplication::translate("SegmentationQtClass", "File", 0));
+        menuTools->setTitle(QApplication::translate("SegmentationQtClass", "Tools", 0));
     } // retranslateUi
 
 };

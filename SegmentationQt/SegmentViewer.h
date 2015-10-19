@@ -2,11 +2,13 @@
 #define SEGMENTATIONQT_H
 
 #include <QtWidgets/QMainWindow>
-#include <qevent.h>
 #include <QtWidgets/qscrollbar.h>
+#include <qevent.h>
 #include <qdebug.h>
+#include <qpainter.h>
 #include "ui_SegmentViewer.h"
 #include <opencv2/core/core.hpp> 
+#include <opencv2/imgproc/imgproc.hpp>
 #include "Utility.h"
 
 namespace IS{
@@ -14,15 +16,17 @@ namespace IS{
 	struct ImageData{
 		int id;
 		QLabel* label;
+		QPixmap* pixmap;
 		QWidget* pool;
 		QScrollArea* scroll;
 		float scale = 1;
 		int originWidth;
 		int originHeight;
 
-		ImageData(int i,QLabel* l, QWidget* p,QScrollArea* s){
+		ImageData(int i, QLabel* l, QWidget* p, QScrollArea* s){
 			id = i;
 			label = l;
+			pixmap = (QPixmap*)l->pixmap();
 			pool = p;
 			scroll = s;
 			if (l->pixmap() != NULL){
@@ -46,6 +50,9 @@ namespace IS{
 		static const int ID_GRAY = 1;
 		static const int ID_DIVISION = 2;
 
+		static const int GCD_POINT_RADIUS = 3;
+		static const int GCD_POINT_THICKNESS = 0;
+
 		static const float SCALE_MIN;
 		static const float SCALE_MAX;
 		static const float WHEEL_SENSIBILITY;
@@ -68,11 +75,22 @@ namespace IS{
 
 		Dictionary<int, ImageData*> images;
 
-		void DealViewEvent(QObject *obj, QEvent* ev);
-		int DealClickEvent(int id,QMouseEvent* ev);
+		List<QAction*> toolmenu;
+
+		List<QPoint> fgdPixels, bgdPixels, prFgdPixels, prBgdPixels;
+
+		void DealViewEvent(int id, QEvent* ev);
+		void DealClickEvent(int id,QMouseEvent* ev);
+		void DealToolMenuEvent(QAction* obj, QEvent* ev);
+
+		void FeatureCatch(int id, QMouseEvent* ev);
+		void GCD_Catch(int id, QMouseEvent* ev, bool isPr);
 
 		void ScaleImage(int id, float delta);
 		void ScrollImage(int id, float deltaX, float deltaY);
+
+		void DrawPoint(int id,int x,int y,int color);
+		void ResetPaint(int id);
 
 		bool mouseDown = false;
 		QPoint lastMousePos;
