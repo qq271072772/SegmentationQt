@@ -39,7 +39,7 @@ namespace IS{
 
 		float oldScale = 1;
 		if (images.ContainsKey(id)){
-			oldScale = images(id)->scale;
+			oldScale = images.GetCasted(id)->scale;
 			delete images[id];
 			images.Remove(id);
 		}
@@ -98,7 +98,7 @@ namespace IS{
 				float delta = wev->angleDelta().y()*WHEEL_SENSIBILITY;
 				vector<int> keys = images.Keys();
 				for (int i = 0; i < keys.size(); i++)
-					ScaleImage(images(keys[i])->id, delta);
+					ScaleImage(images.GetCasted(keys[i])->id, delta);
 			}
 			break;
 		case QEvent::MouseButtonPress:
@@ -119,7 +119,7 @@ namespace IS{
 				float deltaY = (mev->y() - lastMousePos.y())*SCROLL_SENSIBILITY;
 				vector<int> keys = images.Keys();
 				for (int i = 0; i < keys.size(); i++)
-					ScrollImage(images(keys[i])->id, deltaX, deltaY);
+					ScrollImage(images.GetCasted(keys[i])->id, deltaX, deltaY);
 				lastMousePos.setX(mev->x());
 				lastMousePos.setY(mev->y());
 			}
@@ -182,12 +182,12 @@ namespace IS{
 	bool SegmentViewer::eventFilter(QObject *obj, QEvent* ev){
 		vector<int> keys = images.Keys();
 		for (int i = 0; i < keys.size(); i++){
-			if (obj == images(keys[i])->scroll->viewport()){
+			if (obj == images.GetCasted(keys[i])->scroll->viewport()){
 				DealViewEvent(obj, ev);
 				return true;
 			}
-			if (obj == images(keys[i])->label && ev->type() == QEvent::MouseButtonRelease){
-				if (DealClickEvent(images(keys[i])->id, (QMouseEvent*)ev) >= 0)
+			if (obj == images.GetCasted(keys[i])->label && ev->type() == QEvent::MouseButtonRelease){
+				if (DealClickEvent(images.GetCasted(keys[i])->id, (QMouseEvent*)ev) >= 0)
 					return false;
 			}
 		}

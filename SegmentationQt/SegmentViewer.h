@@ -7,7 +7,6 @@
 #include <qdebug.h>
 #include "ui_SegmentViewer.h"
 #include <opencv2/core/core.hpp> 
-#include <vector>
 #include "Utility.h"
 
 namespace IS{

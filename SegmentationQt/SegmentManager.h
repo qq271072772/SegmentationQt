@@ -1,8 +1,8 @@
 #include<iostream>
-#include<vector>
 #include<math.h>
 #include <opencv2/core/core.hpp> 
 #include <opencv2/highgui/highgui.hpp>
+#include "Utility.h"
 
 using namespace std;
 
@@ -23,8 +23,8 @@ namespace IS {
 
 			static SegmentManager* instance;
 
-			vector<IplImage*> activeImgs;
-			vector<char*> activeWins;
+			List<IplImage*> activeImgs;
+			List<char*> activeWins;
 
 			static void OnMouseClickedOnGray(int event, int x, int y, int flags, void* param);
 			static void OnToleranceChanged(int value);

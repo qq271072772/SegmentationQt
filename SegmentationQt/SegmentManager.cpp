@@ -6,8 +6,8 @@ namespace IS {
 	SegmentManager::SegmentManager(){
 		grayImg = NULL;
 		divisionImg = NULL;
-		activeImgs.clear();
-		activeWins.clear();
+		activeImgs.Clear();
+		activeWins.Clear();
 	}
 	SegmentManager::~SegmentManager(){
 
@@ -43,7 +43,7 @@ namespace IS {
 		IplImage* ret = cvLoadImage(filename, CV_LOAD_IMAGE_UNCHANGED);
 		if (ret != NULL){
 			cvCvtColor(ret, ret, CV_BGR2RGB);
-			activeImgs.push_back(ret);
+			activeImgs.Add(ret);
 		}
 		return ret;
 	}
@@ -57,7 +57,7 @@ namespace IS {
 			return NULL;
 		if (grayImg == NULL) {
 			grayImg = cvCreateImage(cvGetSize(src), IPL_DEPTH_8U, 1);
-			activeImgs.push_back(grayImg);
+			activeImgs.Add(grayImg);
 		}
 		cvCvtColor(src, grayImg, CV_RGB2GRAY);
 		return grayImg;
@@ -96,7 +96,7 @@ namespace IS {
 		}
 
 		IplImage* ret = cvCreateImage(cvGetSize(src), IPL_DEPTH_8U, 1);
-		activeImgs.push_back(ret);
+		activeImgs.Add(ret);
 
 		cvCopy(src, ret, NULL);
 		for (int i = 0; i < ret->height; i++)
@@ -124,7 +124,7 @@ namespace IS {
 
 		if (divisionImg == NULL) {
 			divisionImg = cvCreateImage(cvGetSize(src), IPL_DEPTH_8U, 1);
-			activeImgs.push_back(divisionImg);
+			activeImgs.Add(divisionImg);
 		}
 
 		cvCopy(src, divisionImg, NULL);
@@ -152,7 +152,7 @@ namespace IS {
 			return;
 		cvNamedWindow(name, CV_WINDOW_AUTOSIZE);
 		cvShowImage(name, img);
-		activeWins.push_back(name);
+		activeWins.Add(name);
 	}
 	void SegmentManager::RegisterGrayWinEvent(char* name) {
 		cvCreateTrackbar("Top Tol:", name, &topToleranceValue, 100,OnToleranceChanged);
@@ -171,15 +171,14 @@ namespace IS {
 	}
 
 	void SegmentManager::ReleaseAll() {
-		vector<IplImage*>::iterator imgI;
-		for (imgI = activeImgs.begin(); imgI != activeImgs.end(); imgI++) {
-			if (*imgI != NULL) {
-				cvReleaseImage(&(*imgI));
+		for (int i = 0; i < activeImgs.Count();i++) {
+			if (activeImgs[i] != NULL) {
+				IplImage* tmp = activeImgs[i];
+				cvReleaseImage(&tmp);
 			}
 		}
-		vector<char*>::iterator winI;
-		for (winI = activeWins.begin(); winI != activeWins.end(); winI++) {
-			cvDestroyWindow(*(winI));
+		for (int i = 0; i < activeWins.Count(); i++){
+			cvDestroyWindow(activeWins[i]);
 		}
 		delete this;
 	}
