@@ -33,7 +33,8 @@ public:
     QAction *tools_featureCatchOn;
     QAction *tools_GCD_catchON;
     QAction *tools_GCD_PR_catchON;
-    QAction *actionGCD_Genrate;
+    QAction *tools_GCD_Genrate;
+    QAction *tools_GCD_Clear;
     QWidget *centralWidget;
     QVBoxLayout *verticalLayout;
     QHBoxLayout *layout_images;
@@ -64,8 +65,12 @@ public:
         tools_GCD_PR_catchON = new QAction(SegmentationQtClass);
         tools_GCD_PR_catchON->setObjectName(QStringLiteral("tools_GCD_PR_catchON"));
         tools_GCD_PR_catchON->setCheckable(true);
-        actionGCD_Genrate = new QAction(SegmentationQtClass);
-        actionGCD_Genrate->setObjectName(QStringLiteral("actionGCD_Genrate"));
+        tools_GCD_Genrate = new QAction(SegmentationQtClass);
+        tools_GCD_Genrate->setObjectName(QStringLiteral("tools_GCD_Genrate"));
+        tools_GCD_Genrate->setCheckable(true);
+        tools_GCD_Clear = new QAction(SegmentationQtClass);
+        tools_GCD_Clear->setObjectName(QStringLiteral("tools_GCD_Clear"));
+        tools_GCD_Clear->setCheckable(true);
         centralWidget = new QWidget(SegmentationQtClass);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         verticalLayout = new QVBoxLayout(centralWidget);
@@ -94,14 +99,13 @@ public:
         scrollview_gray->setAlignment(Qt::AlignCenter);
         pool_gray = new QWidget();
         pool_gray->setObjectName(QStringLiteral("pool_gray"));
-        pool_gray->setGeometry(QRect(15, 120, 640, 480));
+        pool_gray->setGeometry(QRect(13, 113, 640, 480));
         label_gray = new QLabel(pool_gray);
         label_gray->setObjectName(QStringLiteral("label_gray"));
         label_gray->setGeometry(QRect(0, 0, 640, 480));
-        label_gray->setScaledContents(true);
+        label_gray->setScaledContents(false);
         label_gray->setAlignment(Qt::AlignCenter);
         scrollview_gray->setWidget(pool_gray);
-        label_gray->raise();
 
         layout_images->addWidget(scrollview_gray);
 
@@ -112,11 +116,11 @@ public:
         scrollview_division->setAlignment(Qt::AlignCenter);
         pool_division = new QWidget();
         pool_division->setObjectName(QStringLiteral("pool_division"));
-        pool_division->setGeometry(QRect(15, 120, 640, 480));
+        pool_division->setGeometry(QRect(13, 113, 640, 480));
         label_division = new QLabel(pool_division);
         label_division->setObjectName(QStringLiteral("label_division"));
         label_division->setGeometry(QRect(0, 0, 640, 480));
-        label_division->setScaledContents(true);
+        label_division->setScaledContents(false);
         label_division->setAlignment(Qt::AlignCenter);
         scrollview_division->setWidget(pool_division);
 
@@ -128,7 +132,7 @@ public:
         SegmentationQtClass->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(SegmentationQtClass);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 1371, 24));
+        menuBar->setGeometry(QRect(0, 0, 1371, 27));
         menu_file = new QMenu(menuBar);
         menu_file->setObjectName(QStringLiteral("menu_file"));
         menuTools = new QMenu(menuBar);
@@ -147,7 +151,8 @@ public:
         menuTools->addAction(tools_GCD_catchON);
         menuTools->addAction(tools_GCD_PR_catchON);
         menuTools->addSeparator();
-        menuTools->addAction(actionGCD_Genrate);
+        menuTools->addAction(tools_GCD_Clear);
+        menuTools->addAction(tools_GCD_Genrate);
 
         retranslateUi(SegmentationQtClass);
 
@@ -156,11 +161,12 @@ public:
 
     void retranslateUi(QMainWindow *SegmentationQtClass)
     {
-        SegmentationQtClass->setWindowTitle(QApplication::translate("SegmentationQtClass", "SegmentationQt", 0));
+        SegmentationQtClass->setWindowTitle(QApplication::translate("SegmentationQtClass", "SegmentViewer", 0));
         tools_featureCatchOn->setText(QApplication::translate("SegmentationQtClass", "FeatureCatchON", 0));
         tools_GCD_catchON->setText(QApplication::translate("SegmentationQtClass", "GCD_CatchON", 0));
         tools_GCD_PR_catchON->setText(QApplication::translate("SegmentationQtClass", "GCD_PR_CatchON", 0));
-        actionGCD_Genrate->setText(QApplication::translate("SegmentationQtClass", "GCD_Genrate", 0));
+        tools_GCD_Genrate->setText(QApplication::translate("SegmentationQtClass", "GCD_Genrate", 0));
+        tools_GCD_Clear->setText(QApplication::translate("SegmentationQtClass", "GCD_Clear", 0));
         label_gray->setText(QApplication::translate("SegmentationQtClass", "Label_Gray", 0));
         label_division->setText(QApplication::translate("SegmentationQtClass", "Label_Division", 0));
         menu_file->setTitle(QApplication::translate("SegmentationQtClass", "File", 0));

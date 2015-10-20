@@ -10,7 +10,7 @@ int main(int argCnt, char** args) {
 		return 0;
 
 	SegmentManager* segMgr = SegmentManager::Instance();
-	IplImage* src = segMgr->LoadImage(SegmentManager::debugModeOn ? "E:\\Project\\SegmentationQt\\Assets\\2.jpeg" : args[1]);
+	IplImage* src = segMgr->LoadImage(SegmentManager::debugModeOn ? "E:\\Project\\SegmentationQt\\Assets\\1.png" : args[1]);
 	IplImage* gray = segMgr->ConvertToGrayImage(src);
 	IplImage* division = segMgr->GetThreeDivision(gray, 50, 100, 30, 20);
 

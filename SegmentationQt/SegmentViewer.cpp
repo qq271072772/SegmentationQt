@@ -10,18 +10,20 @@ namespace IS{
 		ui.setupUi(this);
 		ui.scrollview_gray->viewport()->installEventFilter(this);
 		ui.scrollview_division->viewport()->installEventFilter(this);
-		ui.scrollview_gray->horizontalScrollBar()->setEnabled(false);
-		ui.scrollview_gray->verticalScrollBar()->setEnabled(false);
-		ui.scrollview_division->horizontalScrollBar()->setEnabled(false);
-		ui.scrollview_division->verticalScrollBar()->setEnabled(false);
+		//ui.scrollview_gray->horizontalScrollBar()->setEnabled(false);
+		//ui.scrollview_gray->verticalScrollBar()->setEnabled(false);
+		//ui.scrollview_division->horizontalScrollBar()->setEnabled(false);
+		//ui.scrollview_division->verticalScrollBar()->setEnabled(false);
 		ui.label_gray->installEventFilter(this);
 
-		toolmenu.Add(ui.tools_featureCatchOn);
-		toolmenu.Add(ui.tools_GCD_catchON);
-		toolmenu.Add(ui.tools_GCD_PR_catchON);
+		modemenu.Add(ui.tools_featureCatchOn);
+		modemenu.Add(ui.tools_GCD_catchON);
+		modemenu.Add(ui.tools_GCD_PR_catchON);
 		ui.tools_featureCatchOn->installEventFilter(this);
 		ui.tools_GCD_catchON->installEventFilter(this);
 		ui.tools_GCD_PR_catchON->installEventFilter(this);
+		ui.tools_GCD_Clear->installEventFilter(this);
+		ui.tools_GCD_Genrate->installEventFilter(this);
 	}
 	SegmentViewer::~SegmentViewer()
 	{
@@ -145,26 +147,61 @@ namespace IS{
 		}
 
 	}
-	void SegmentViewer::DealClickEvent(int id, QMouseEvent* ev){
+	void SegmentViewer::DealCatchEvent(int id, QEvent* ev){
 		if (!images.ContainsKey(id))
 			return;
 
-		if (ui.tools_featureCatchOn->isChecked())
-			FeatureCatch(id, ev);
-		if (ui.tools_GCD_catchON->isChecked())
-			GCD_Catch(id, ev, false);
-		if (ui.tools_GCD_PR_catchON->isChecked())
-			GCD_Catch(id, ev, true);
+		switch (Mode())
+		{
+		case FEATURE_CATCH:
+			if (ev->type() == QEvent::MouseButtonRelease)
+				FeatureCatch(id, (QMouseEvent*)ev);
+			break;
+		case GCD_CATCH:
+		case GCD_PR_CATCH:
+			switch (ev->type())
+			{
+			case  QEvent::MouseButtonPress:
+				mouseDown = true;
+				lastMouseButton = ((QMouseEvent*)ev)->button();
+				GCD_Catch(id, (QMouseEvent*)ev, Mode() == GCD_PR_CATCH);
+				break;
+			case QEvent::MouseMove:
+				if (mouseDown)
+					GCD_Catch(id, (QMouseEvent*)ev, Mode() == GCD_PR_CATCH);
+				break;
+			case QEvent::MouseButtonRelease:
+				mouseDown = false;
+			default:
+				break;
+			}
+			break;
+		default:
+			break;
+		}
 	}
-	void SegmentViewer::DealToolMenuEvent(QAction* obj, QEvent* ev){
+	void SegmentViewer::DealModeMenuEvent(QAction* obj, QEvent* ev){
 		if (ev->type() == QEvent::ActionChanged){
-			for (int i = 0; i < toolmenu.Count(); i++){
-				toolmenu.Get(i)->removeEventFilter(this);
-				if (obj != toolmenu[i])
-					toolmenu.Get(i)->setChecked(false);
-				toolmenu.Get(i)->installEventFilter(this);
+			for (int i = 0; i < modemenu.Count(); i++){
+				if (obj != modemenu[i])
+					SetActionChecked(modemenu[i], false);
 			}
 		}
+	}
+	bool SegmentViewer::DealToolMenuEvent(QObject *obj, QEvent* ev){
+		if (ev->type() == QEvent::ActionChanged){
+			if (obj == ui.tools_GCD_Clear){
+				ClearPaint(ID_GRAY);
+				SetActionChecked(ui.tools_GCD_Clear, false);
+				return true;
+			}
+			if (obj == ui.tools_GCD_Genrate){
+				GenerateGrabCut();
+				SetActionChecked(ui.tools_GCD_Genrate, false);
+				return true;
+			}
+		}
+		return false;
 	}
 
 	void SegmentViewer::ScaleImage(int id, float delta){
@@ -179,7 +216,9 @@ namespace IS{
 		data->scale = newScale;
 		int newHeight = data->originHeight*newScale;
 		int newWidth = data->originWidth*newScale;
+
 		data->label->setFixedSize(newWidth, newHeight);
+		data->label->setPixmap(data->pixmap.scaled(newWidth, newHeight));
 		data->pool->resize(newWidth, newHeight);
 	}
 	void SegmentViewer::ScrollImage(int id, float deltaX, float deltaY){
@@ -194,7 +233,7 @@ namespace IS{
 	void SegmentViewer::FeatureCatch(int id, QMouseEvent* ev){
 		id = ID_GRAY;
 		ImageData* data = images[id];
-		QImage image = data->label->pixmap()->toImage();
+		QImage image = data->pixmap.toImage();
 		uchar bright = qGray(image.pixel(ev->x() / data->scale, ev->y() / data->scale));
 
 		SegmentManager* segMgr = SegmentManager::Instance();
@@ -213,9 +252,9 @@ namespace IS{
 	}
 	void SegmentViewer::GCD_Catch(int id, QMouseEvent* ev, bool isPr){
 		ImageData* data = images[id];
-		int realX = ev->x() / data->scale;
-		int realY = ev->y() / data->scale;
-		if (ev->button() == Qt::LeftButton){
+		int realX = ev->x() /data->scale;
+		int realY = ev->y()/data->scale;
+		if (lastMouseButton == Qt::LeftButton){
 			if (!isPr){
 				DrawPoint(id, realX, realY, Qt::red);
 				fgdPixels.Add(QPoint(realX, realY));
@@ -225,7 +264,7 @@ namespace IS{
 				prFgdPixels.Add(QPoint(realX, realY));
 			}
 		}
-		else if (ev->button() == Qt::RightButton){
+		else if (lastMouseButton == Qt::RightButton){
 			if (!isPr){
 				DrawPoint(id, realX, realY, Qt::blue);
 				bgdPixels.Add(QPoint(realX, realY));
@@ -239,38 +278,73 @@ namespace IS{
 
 	void SegmentViewer::DrawPoint(int id, int x,int y,int color){
 		ImageData* data = images[id];
-		QImage image = data->label->pixmap()->toImage();
+		QImage image = data->pixmap.toImage(); 
 		QPainter painter;
 		painter.begin(&image);
 		painter.setBrush(QBrush((Qt::GlobalColor)color));
 		painter.setPen(QPen((Qt::GlobalColor)color));
 		painter.drawEllipse(x, y, GCD_POINT_RADIUS * 2, GCD_POINT_RADIUS * 2);
 		painter.end();
-		data->label->setPixmap(QPixmap::fromImage(image));
+		data->pixmap = QPixmap::fromImage(image);
+		data->label->setPixmap(data->pixmap.scaled(data->label->pixmap()->size()));
 	}
-	void SegmentViewer::ResetPaint(int id){
+	void SegmentViewer::ClearPaint(int id){
+		ImageData* data = images[id];
+		data->pixmap = data->pixmap_origin;
+		data->label->setPixmap(data->pixmap.scaled(data->label->pixmap()->size()));
+		fgdPixels.Clear();
+		bgdPixels.Clear();
+		prFgdPixels.Clear();
+		prBgdPixels.Clear();
+	}
 
+	void SegmentViewer::GenerateGrabCut(){
+		if (fgdPixels.Count() == 0)
+			return;
+		SegmentManager* segMgr = SegmentManager::Instance();
+		if (segMgr->SrcImage() == NULL)
+			return;
+		IplImage* division = segMgr->GetGrabCut(segMgr->SrcImage());
+		RegisterImage(ID_DIVISION, division);
 	}
 
 	//Protected
 
 	bool SegmentViewer::eventFilter(QObject *obj, QEvent* ev){
-		List<int> keys = images.Keys();
-		for (int i = 0; i < keys.Count(); i++){
-			if (obj == images.GetCasted(keys[i])->scroll->viewport()){
-				DealViewEvent(images.GetCasted(keys[i])->id, ev);
-				return true;
-			}
-			if (obj == images.GetCasted(keys[i])->label && ev->type() == QEvent::MouseButtonRelease){
-				DealClickEvent(images.GetCasted(keys[i])->id, (QMouseEvent*)ev);
-				return true;
+		switch (Mode())
+		{
+		case VIEW:{
+			List<int> keys = images.Keys();
+			for (int i = 0; i < keys.Count(); i++){
+				if (obj == images.GetCasted(keys[i])->scroll->viewport()){
+					DealViewEvent(images.GetCasted(keys[i])->id, ev);
+					return true;
+				}
 			}
 		}
-		for (int i = 0; i < toolmenu.Count();i++)
-			if (toolmenu[i] == obj){
-				DealToolMenuEvent((QAction*)obj, ev);
+			break;
+		case FEATURE_CATCH:
+		case GCD_CATCH:
+		case GCD_PR_CATCH:{
+			List<int> keys = images.Keys();
+			for (int i = 0; i < keys.Count(); i++){
+				if (obj == images.GetCasted(keys[i])->label){
+					DealCatchEvent(images.GetCasted(keys[i])->id, ev);
+					return false;
+				}
+			}
+		}
+			break;
+		default:
+			break;
+		}
+		for (int i = 0; i < modemenu.Count(); i++)
+			if (modemenu[i] == obj){
+				DealModeMenuEvent((QAction*)obj, ev);
 				return false;
 			}
+		if (DealToolMenuEvent(obj, ev))
+			return true;
 		return false;
 	}
 }

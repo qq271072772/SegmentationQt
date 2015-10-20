@@ -16,7 +16,8 @@ namespace IS{
 	struct ImageData{
 		int id;
 		QLabel* label;
-		QPixmap* pixmap;
+		QPixmap pixmap; 
+		QPixmap pixmap_origin;
 		QWidget* pool;
 		QScrollArea* scroll;
 		float scale = 1;
@@ -26,7 +27,8 @@ namespace IS{
 		ImageData(int i, QLabel* l, QWidget* p, QScrollArea* s){
 			id = i;
 			label = l;
-			pixmap = (QPixmap*)l->pixmap();
+			pixmap = QPixmap::fromImage(l->pixmap()->toImage());
+			pixmap_origin = pixmap;
 			pool = p;
 			scroll = s;
 			if (l->pixmap() != NULL){
@@ -67,7 +69,25 @@ namespace IS{
 
 		void RegisterImage(int id, IplImage* cvImg);
 
+		List<QPoint> FgdPixels(){
+			return fgdPixels;
+		}
+		List<QPoint> BgdPixels(){
+			return bgdPixels;
+		}
+		List<QPoint> PrFgdPixels(){
+			return prFgdPixels;
+		}
+		List<QPoint> PrBgdPixels(){
+			return prBgdPixels;
+		}
+
 	private:
+
+		enum ViwerMode
+		{
+			VIEW,FEATURE_CATCH , GCD_CATCH, GCD_PR_CATCH
+		};
 
 		static SegmentViewer* instance;
 
@@ -75,13 +95,28 @@ namespace IS{
 
 		Dictionary<int, ImageData*> images;
 
-		List<QAction*> toolmenu;
+		List<QAction*> modemenu;
 
 		List<QPoint> fgdPixels, bgdPixels, prFgdPixels, prBgdPixels;
 
+		bool mouseDown = false;
+		QPoint lastMousePos;
+		int lastMouseButton;
+
+		ViwerMode Mode(){
+			if (ui.tools_featureCatchOn->isChecked())
+				return FEATURE_CATCH;
+			if (ui.tools_GCD_catchON->isChecked())
+				return GCD_CATCH;
+			if (ui.tools_GCD_PR_catchON->isChecked())
+				return GCD_PR_CATCH;
+			return VIEW;
+		}
+
 		void DealViewEvent(int id, QEvent* ev);
-		void DealClickEvent(int id,QMouseEvent* ev);
-		void DealToolMenuEvent(QAction* obj, QEvent* ev);
+		void DealCatchEvent(int id,QEvent* ev);
+		void DealModeMenuEvent(QAction* obj, QEvent* ev);
+		bool DealToolMenuEvent(QObject* obj, QEvent* ev);
 
 		void FeatureCatch(int id, QMouseEvent* ev);
 		void GCD_Catch(int id, QMouseEvent* ev, bool isPr);
@@ -90,10 +125,15 @@ namespace IS{
 		void ScrollImage(int id, float deltaX, float deltaY);
 
 		void DrawPoint(int id,int x,int y,int color);
-		void ResetPaint(int id);
+		void ClearPaint(int id);
 
-		bool mouseDown = false;
-		QPoint lastMousePos;
+		void GenerateGrabCut();
+
+		void SetActionChecked(QAction* obj,bool flag){
+			obj->removeEventFilter(this);
+			obj->setChecked(flag);
+			obj->installEventFilter(this);
+		}
 
 	protected:
 		bool eventFilter(QObject *obj, QEvent* ev);

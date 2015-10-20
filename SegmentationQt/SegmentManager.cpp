@@ -36,7 +36,7 @@ namespace IS {
 
 	//Public
 
-	bool SegmentManager::debugModeOn = true;
+	bool SegmentManager::debugModeOn = false;
 	SegmentManager* SegmentManager::instance = NULL;
 
 	IplImage* SegmentManager::LoadImage(char* filename) {
@@ -44,6 +44,7 @@ namespace IS {
 		if (ret != NULL){
 			cvCvtColor(ret, ret, CV_BGR2RGB);
 			activeImgs.Add(ret);
+			srcImg = ret;
 		}
 		return ret;
 	}
@@ -144,6 +145,49 @@ namespace IS {
 					CV_IMAGE_ELEM(divisionImg, uchar, i, j) = LABEL_INTERMEDIATE;
 			}
 
+		return divisionImg;
+	}
+
+	IplImage* SegmentManager::GetGrabCut(IplImage* src){
+		using namespace cv;
+		SegmentViewer* segViewer = SegmentViewer::Instance();
+		Mat mask(src->height, src->width, CV_8UC1), fgdModel, bgdModel;
+		for (int i = 0; i < src->height; i++){
+			for (int j = 0; j < src->width; j++){
+				mask.at<uchar>(i, j) = cv::GC_PR_BGD;
+			}
+		}
+		for (int i = 0; i < segViewer->FgdPixels().Count(); i++){
+			QPoint point = segViewer->FgdPixels()[i];
+			circle(mask, Point(point.x(), point.y()), segViewer->GCD_POINT_RADIUS, cv::GC_FGD);
+			//mask.at<uchar>(point.y(), point.x()) = cv::GC_FGD;
+		}
+		for (int i = 0; i < segViewer->BgdPixels().Count(); i++){
+			QPoint point = segViewer->BgdPixels()[i];
+			circle(mask, Point(point.x(), point.y()), segViewer->GCD_POINT_RADIUS, cv::GC_BGD);
+			//mask.at<uchar>(point.y(), point.x()) = cv::GC_BGD;
+		}
+		for (int i = 0; i < segViewer->PrFgdPixels().Count(); i++){
+			QPoint point = segViewer->PrFgdPixels()[i];
+			circle(mask, Point(point.x(), point.y()), segViewer->GCD_POINT_RADIUS, cv::GC_PR_FGD);
+			//mask.at<uchar>(point.y(), point.x()) = cv::GC_PR_FGD;
+		}
+		for (int i = 0; i < segViewer->PrBgdPixels().Count(); i++){
+			QPoint point = segViewer->PrBgdPixels()[i];
+			circle(mask, Point(point.x(), point.y()), segViewer->GCD_POINT_RADIUS, cv::GC_PR_BGD);
+			//mask.at<uchar>(point.y(), point.x()) = cv::GC_PR_BGD;
+		}
+		grabCut(cv::cvarrToMat(src), mask, cv::Rect(), bgdModel, fgdModel, GCD_ITE_COUNT, cv::GC_INIT_WITH_MASK);
+		if (divisionImg == NULL) {
+			divisionImg = cvCreateImage(cvGetSize(src), IPL_DEPTH_8U, 1);
+			activeImgs.Add(divisionImg);
+		}
+		for (int i = 0; i < src->height; i++){
+			for (int j = 0; j < src->width; j++){
+				uchar label = mask.at<uchar>(i, j);
+				CV_IMAGE_ELEM(divisionImg, uchar, i, j) = (label == cv::GC_FGD || label == cv::GC_PR_FGD) ? LABEL_TOP : LABEL_BOTTOM;
+			}
+		}
 		return divisionImg;
 	}
 

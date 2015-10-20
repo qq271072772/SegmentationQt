@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>SegmentationQt</string>
+   <string>SegmentViewer</string>
   </property>
   <property name="tabShape">
    <enum>QTabWidget::Rounded</enum>
@@ -64,8 +64,8 @@
         <widget class="QWidget" name="pool_gray">
          <property name="geometry">
           <rect>
-           <x>15</x>
-           <y>120</y>
+           <x>13</x>
+           <y>113</y>
            <width>640</width>
            <height>480</height>
           </rect>
@@ -83,18 +83,12 @@
            <string>Label_Gray</string>
           </property>
           <property name="scaledContents">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
           </property>
          </widget>
-         <zorder>label_gray</zorder>
-         <zorder>scrollview_division</zorder>
-         <zorder>scrollview_division</zorder>
-         <zorder>scrollview_division</zorder>
-         <zorder>scrollview_division</zorder>
-         <zorder>scrollview_division</zorder>
         </widget>
        </widget>
       </item>
@@ -115,8 +109,8 @@
         <widget class="QWidget" name="pool_division">
          <property name="geometry">
           <rect>
-           <x>15</x>
-           <y>120</y>
+           <x>13</x>
+           <y>113</y>
            <width>640</width>
            <height>480</height>
           </rect>
@@ -134,7 +128,7 @@
            <string>Label_Division</string>
           </property>
           <property name="scaledContents">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -153,7 +147,7 @@
      <x>0</x>
      <y>0</y>
      <width>1371</width>
-     <height>24</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_file">
@@ -169,7 +163,8 @@
     <addaction name="tools_GCD_catchON"/>
     <addaction name="tools_GCD_PR_catchON"/>
     <addaction name="separator"/>
-    <addaction name="actionGCD_Genrate"/>
+    <addaction name="tools_GCD_Clear"/>
+    <addaction name="tools_GCD_Genrate"/>
    </widget>
    <addaction name="menu_file"/>
    <addaction name="menuTools"/>
@@ -207,9 +202,20 @@
     <string>GCD_PR_CatchON</string>
    </property>
   </action>
-  <action name="actionGCD_Genrate">
+  <action name="tools_GCD_Genrate">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>GCD_Genrate</string>
+   </property>
+  </action>
+  <action name="tools_GCD_Clear">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>GCD_Clear</string>
    </property>
   </action>
  </widget>
