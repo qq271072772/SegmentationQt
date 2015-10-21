@@ -35,6 +35,7 @@ public:
     QAction *tools_GCD_PR_catchON;
     QAction *tools_GCD_Genrate;
     QAction *tools_GCD_Clear;
+    QAction *file_open;
     QWidget *centralWidget;
     QVBoxLayout *verticalLayout;
     QHBoxLayout *layout_images;
@@ -71,6 +72,9 @@ public:
         tools_GCD_Clear = new QAction(SegmentationQtClass);
         tools_GCD_Clear->setObjectName(QStringLiteral("tools_GCD_Clear"));
         tools_GCD_Clear->setCheckable(true);
+        file_open = new QAction(SegmentationQtClass);
+        file_open->setObjectName(QStringLiteral("file_open"));
+        file_open->setCheckable(true);
         centralWidget = new QWidget(SegmentationQtClass);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         verticalLayout = new QVBoxLayout(centralWidget);
@@ -99,7 +103,7 @@ public:
         scrollview_gray->setAlignment(Qt::AlignCenter);
         pool_gray = new QWidget();
         pool_gray->setObjectName(QStringLiteral("pool_gray"));
-        pool_gray->setGeometry(QRect(13, 113, 640, 480));
+        pool_gray->setGeometry(QRect(15, 120, 640, 480));
         label_gray = new QLabel(pool_gray);
         label_gray->setObjectName(QStringLiteral("label_gray"));
         label_gray->setGeometry(QRect(0, 0, 640, 480));
@@ -116,7 +120,7 @@ public:
         scrollview_division->setAlignment(Qt::AlignCenter);
         pool_division = new QWidget();
         pool_division->setObjectName(QStringLiteral("pool_division"));
-        pool_division->setGeometry(QRect(13, 113, 640, 480));
+        pool_division->setGeometry(QRect(15, 120, 640, 480));
         label_division = new QLabel(pool_division);
         label_division->setObjectName(QStringLiteral("label_division"));
         label_division->setGeometry(QRect(0, 0, 640, 480));
@@ -132,7 +136,7 @@ public:
         SegmentationQtClass->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(SegmentationQtClass);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 1371, 27));
+        menuBar->setGeometry(QRect(0, 0, 1371, 24));
         menu_file = new QMenu(menuBar);
         menu_file->setObjectName(QStringLiteral("menu_file"));
         menuTools = new QMenu(menuBar);
@@ -147,6 +151,7 @@ public:
 
         menuBar->addAction(menu_file->menuAction());
         menuBar->addAction(menuTools->menuAction());
+        menu_file->addAction(file_open);
         menuTools->addAction(tools_featureCatchOn);
         menuTools->addAction(tools_GCD_catchON);
         menuTools->addAction(tools_GCD_PR_catchON);
@@ -167,6 +172,7 @@ public:
         tools_GCD_PR_catchON->setText(QApplication::translate("SegmentationQtClass", "GCD_PR_CatchON", 0));
         tools_GCD_Genrate->setText(QApplication::translate("SegmentationQtClass", "GCD_Genrate", 0));
         tools_GCD_Clear->setText(QApplication::translate("SegmentationQtClass", "GCD_Clear", 0));
+        file_open->setText(QApplication::translate("SegmentationQtClass", "Open...", 0));
         label_gray->setText(QApplication::translate("SegmentationQtClass", "Label_Gray", 0));
         label_division->setText(QApplication::translate("SegmentationQtClass", "Label_Division", 0));
         menu_file->setTitle(QApplication::translate("SegmentationQtClass", "File", 0));

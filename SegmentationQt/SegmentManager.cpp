@@ -7,59 +7,36 @@ namespace IS {
 		grayImg = NULL;
 		divisionImg = NULL;
 		activeImgs.Clear();
-		activeWins.Clear();
 	}
 	SegmentManager::~SegmentManager(){
 
 	}
 
 	//Private
-	void SegmentManager::OnMouseClickedOnGray(int event, int x, int y, int flags, void* param) {
-		SegmentManager* segMgr = SegmentManager::Instance();
-		IplImage* gray = segMgr->GrayImage();
-		uchar bright = CV_IMAGE_ELEM(gray, uchar, y, x);
-		if (event == CV_EVENT_LBUTTONDOWN) {
-			IplImage* division = segMgr->GetThreeDivision(gray, bright, segMgr->BottomValue(), segMgr->TopTolerance(), segMgr->BottomTolerance());
-			cvShowImage((char*)(segMgr->DIVISION_WIN), division);
-		}
-		if (event == CV_EVENT_RBUTTONDOWN) {
-			IplImage* division = segMgr->GetThreeDivision(gray, segMgr->TopValue(), bright, segMgr->TopTolerance(), segMgr->BottomTolerance());
-			cvShowImage((char*)(segMgr->DIVISION_WIN), division);
-		}
-	}
-	void SegmentManager::OnToleranceChanged(int value) {
-		SegmentManager* segMgr = SegmentManager::Instance();
-		IplImage* gray = segMgr->GrayImage();
-		IplImage* division = segMgr->GetThreeDivision(gray, segMgr->TopValue(), segMgr->BottomValue(), segMgr->TopTolerance(), segMgr->BottomTolerance());
-		cvShowImage((char*)(segMgr->DIVISION_WIN), division);
-	}
 
 	//Public
 
-	bool SegmentManager::debugModeOn = false;
+	bool SegmentManager::debugModeOn = true;
 	SegmentManager* SegmentManager::instance = NULL;
 
-	IplImage* SegmentManager::LoadImage(char* filename) {
+	void SegmentManager::LoadSrcImage(char* filename){
 		IplImage* ret = cvLoadImage(filename, CV_LOAD_IMAGE_UNCHANGED);
 		if (ret != NULL){
+			EnsureImg(srcImg);
 			cvCvtColor(ret, ret, CV_BGR2RGB);
 			activeImgs.Add(ret);
 			srcImg = ret;
+			ConvertToGrayImage(srcImg);
+			GetThreeDivision(grayImg, 50, 100, 30, 20);
 		}
-		return ret;
 	}
-	void SegmentManager::ReleaseImage(IplImage* img) {
-		if (img == NULL || &img==NULL)
-			return;
-		cvReleaseImage(&img);
-	}
+
 	IplImage* SegmentManager::ConvertToGrayImage(IplImage* src) {
 		if (src == NULL)
 			return NULL;
-		if (grayImg == NULL) {
-			grayImg = cvCreateImage(cvGetSize(src), IPL_DEPTH_8U, 1);
-			activeImgs.Add(grayImg);
-		}
+		EnsureImg(grayImg);
+		grayImg = cvCreateImage(cvGetSize(src), IPL_DEPTH_8U, 1);
+		activeImgs.Add(grayImg);
 		cvCvtColor(src, grayImg, CV_RGB2GRAY);
 		return grayImg;
 	}
@@ -123,11 +100,10 @@ namespace IS {
 		topToleranceValue = toleranceTop;
 		bottomToleranceValue = toleranceBottom;
 
-		if (divisionImg == NULL) {
-			divisionImg = cvCreateImage(cvGetSize(src), IPL_DEPTH_8U, 1);
-			activeImgs.Add(divisionImg);
-		}
+		EnsureImg(divisionImg);
 
+		divisionImg = cvCreateImage(cvGetSize(src), IPL_DEPTH_8U, 1);
+		activeImgs.Add(divisionImg);
 		cvCopy(src, divisionImg, NULL);
 		for (int i = 0; i < divisionImg->height; i++)
 			for (int j = 0; j < divisionImg->width; j++) {
@@ -160,22 +136,18 @@ namespace IS {
 		for (int i = 0; i < segViewer->FgdPixels().Count(); i++){
 			QPoint point = segViewer->FgdPixels()[i];
 			circle(mask, Point(point.x(), point.y()), segViewer->GCD_POINT_RADIUS, cv::GC_FGD);
-			//mask.at<uchar>(point.y(), point.x()) = cv::GC_FGD;
 		}
 		for (int i = 0; i < segViewer->BgdPixels().Count(); i++){
 			QPoint point = segViewer->BgdPixels()[i];
 			circle(mask, Point(point.x(), point.y()), segViewer->GCD_POINT_RADIUS, cv::GC_BGD);
-			//mask.at<uchar>(point.y(), point.x()) = cv::GC_BGD;
 		}
 		for (int i = 0; i < segViewer->PrFgdPixels().Count(); i++){
 			QPoint point = segViewer->PrFgdPixels()[i];
 			circle(mask, Point(point.x(), point.y()), segViewer->GCD_POINT_RADIUS, cv::GC_PR_FGD);
-			//mask.at<uchar>(point.y(), point.x()) = cv::GC_PR_FGD;
 		}
 		for (int i = 0; i < segViewer->PrBgdPixels().Count(); i++){
 			QPoint point = segViewer->PrBgdPixels()[i];
 			circle(mask, Point(point.x(), point.y()), segViewer->GCD_POINT_RADIUS, cv::GC_PR_BGD);
-			//mask.at<uchar>(point.y(), point.x()) = cv::GC_PR_BGD;
 		}
 		grabCut(cv::cvarrToMat(src), mask, cv::Rect(), bgdModel, fgdModel, GCD_ITE_COUNT, cv::GC_INIT_WITH_MASK);
 		if (divisionImg == NULL) {
@@ -191,22 +163,6 @@ namespace IS {
 		return divisionImg;
 	}
 
-	void SegmentManager::ShowImageWin(char* name, IplImage* img) {
-		if (img == NULL)
-			return;
-		cvNamedWindow(name, CV_WINDOW_AUTOSIZE);
-		cvShowImage(name, img);
-		activeWins.Add(name);
-	}
-	void SegmentManager::RegisterGrayWinEvent(char* name) {
-		cvCreateTrackbar("Top Tol:", name, &topToleranceValue, 100,OnToleranceChanged);
-		cvCreateTrackbar("Bot Tol:", name, &bottomToleranceValue, 100, OnToleranceChanged);
-		cvSetMouseCallback(name, OnMouseClickedOnGray, NULL);
-	}
-	void SegmentManager::DestoryWin(char* name) {
-		cvDestroyWindow(name);
-	}
-
 	SegmentManager* SegmentManager::Instance() {
 		if (instance == NULL) {
 			instance = new SegmentManager();
@@ -220,9 +176,6 @@ namespace IS {
 				IplImage* tmp = activeImgs[i];
 				cvReleaseImage(&tmp);
 			}
-		}
-		for (int i = 0; i < activeWins.Count(); i++){
-			cvDestroyWindow(activeWins[i]);
 		}
 		delete this;
 	}

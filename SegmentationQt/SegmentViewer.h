@@ -3,6 +3,8 @@
 
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/qscrollbar.h>
+#include <qmessagebox.h>
+#include <qfiledialog.h>
 #include <qevent.h>
 #include <qdebug.h>
 #include <qpainter.h>
@@ -125,8 +127,9 @@ namespace IS{
 		void ScrollImage(int id, float deltaX, float deltaY);
 
 		void DrawPoint(int id,int x,int y,int color);
-		void ClearPaint(int id);
 
+		void OpenFile();
+		void ClearPaint(int id);
 		void GenerateGrabCut();
 
 		void SetActionChecked(QAction* obj,bool flag){
@@ -134,6 +137,7 @@ namespace IS{
 			obj->setChecked(flag);
 			obj->installEventFilter(this);
 		}
+
 
 	protected:
 		bool eventFilter(QObject *obj, QEvent* ev);

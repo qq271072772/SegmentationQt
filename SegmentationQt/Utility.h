@@ -26,7 +26,7 @@ namespace IS{
 
 		int Find(Value value){
 			int index = 0;
-			iterator<Value> ite;
+			vector<Value>::iterator ite;
 			for (ite = begin(); ite != end(); ite++){
 				if (*ite == value){
 					return index;

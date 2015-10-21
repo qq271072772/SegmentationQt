@@ -29,10 +29,13 @@ namespace IS {
 			static SegmentManager* instance;
 
 			List<IplImage*> activeImgs;
-			List<char*> activeWins;
 
-			static void OnMouseClickedOnGray(int event, int x, int y, int flags, void* param);
-			static void OnToleranceChanged(int value);
+			void EnsureImg(IplImage* img){
+				if (img != NULL){
+					activeImgs.Remove(img);
+					cvReleaseImage(&img);
+				}
+			}
 
 		public:
 
@@ -53,6 +56,9 @@ namespace IS {
 			IplImage* SrcImage(){
 				return srcImg;
 			}
+			IplImage* RetImage(){
+				return divisionImg;
+			}
 			int TopValue() {
 				return topValue;
 			}
@@ -66,11 +72,7 @@ namespace IS {
 				return bottomToleranceValue;
 			}
 
-			IplImage* LoadImage(char* filename);
-			void ReleaseImage(IplImage* img);
-			void WaitKey(int delay){
-				cvWaitKey(delay);
-			}
+			void LoadSrcImage(char * filename);
 
 			IplImage* ConvertToGrayImage(IplImage* src);
 
@@ -80,12 +82,7 @@ namespace IS {
 
 			//get result by adjustment feature and tolerance
 			IplImage* GetThreeDivision(IplImage* src, int featureTop, int featureBottom, int toleranceTop, int toleranceBottom);
-
 			IplImage* GetGrabCut(IplImage* src);
-
-			void ShowImageWin(char* name,IplImage* img);
-			void RegisterGrayWinEvent(char* name);
-			void DestoryWin(char* name);
 
 			void ReleaseAll();
 	};

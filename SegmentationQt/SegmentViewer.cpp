@@ -19,6 +19,7 @@ namespace IS{
 		modemenu.Add(ui.tools_featureCatchOn);
 		modemenu.Add(ui.tools_GCD_catchON);
 		modemenu.Add(ui.tools_GCD_PR_catchON);
+		ui.file_open->installEventFilter(this);
 		ui.tools_featureCatchOn->installEventFilter(this);
 		ui.tools_GCD_catchON->installEventFilter(this);
 		ui.tools_GCD_PR_catchON->installEventFilter(this);
@@ -190,8 +191,16 @@ namespace IS{
 	}
 	bool SegmentViewer::DealToolMenuEvent(QObject *obj, QEvent* ev){
 		if (ev->type() == QEvent::ActionChanged){
+			if (obj == ui.file_open){
+				OpenFile();
+				SetActionChecked(ui.file_open, false);
+				return true;
+			}
 			if (obj == ui.tools_GCD_Clear){
-				ClearPaint(ID_GRAY);
+				if (images.ContainsKey(ID_GRAY))
+					ClearPaint(ID_GRAY);
+				if (images.ContainsKey(ID_SRC))
+					ClearPaint(ID_SRC);
 				SetActionChecked(ui.tools_GCD_Clear, false);
 				return true;
 			}
@@ -288,6 +297,23 @@ namespace IS{
 		data->pixmap = QPixmap::fromImage(image);
 		data->label->setPixmap(data->pixmap.scaled(data->label->pixmap()->size()));
 	}
+
+	void SegmentViewer::OpenFile(){
+		SegmentManager* segMgr = SegmentManager::Instance();
+		QString filename = QFileDialog::getOpenFileName(this,
+			tr("Open Image"), "/", tr("Image Files (*.png *.jpg *.bmp *.jpeg)"));
+		if (!filename.isEmpty()){
+			QByteArray ba = filename.toLatin1();
+			char *c_filename = ba.data();
+			segMgr->LoadSrcImage(c_filename);
+			RegisterImage(SegmentViewer::ID_SRC, segMgr->SrcImage());
+			RegisterImage(SegmentViewer::ID_DIVISION, segMgr->RetImage());
+		}
+		qDebug() << filename;
+		//segMgr->LoadSrcImage(filename);
+		//RegisterImage(SegmentViewer::ID_SRC, segMgr->SrcImage());
+		//RegisterImage(SegmentViewer::ID_DIVISION, segMgr->RetImage());
+	}
 	void SegmentViewer::ClearPaint(int id){
 		ImageData* data = images[id];
 		data->pixmap = data->pixmap_origin;
@@ -297,15 +323,19 @@ namespace IS{
 		prFgdPixels.Clear();
 		prBgdPixels.Clear();
 	}
-
 	void SegmentViewer::GenerateGrabCut(){
 		if (fgdPixels.Count() == 0)
 			return;
 		SegmentManager* segMgr = SegmentManager::Instance();
 		if (segMgr->SrcImage() == NULL)
 			return;
+		QMessageBox* msgBox=new QMessageBox(this);
+		msgBox->setAttribute(Qt::WA_DeleteOnClose);
+		msgBox->setWindowTitle(tr("Processing..."));
+		msgBox->show();
 		IplImage* division = segMgr->GetGrabCut(segMgr->SrcImage());
 		RegisterImage(ID_DIVISION, division);
+		msgBox->close();
 	}
 
 	//Protected
