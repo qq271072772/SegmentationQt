@@ -30,9 +30,7 @@ QT_BEGIN_NAMESPACE
 class Ui_SegmentationQtClass
 {
 public:
-    QAction *tools_featureCatchOn;
     QAction *tools_GCD_catchON;
-    QAction *tools_GCD_PR_catchON;
     QAction *tools_GCD_Genrate;
     QAction *tools_GCD_Clear;
     QAction *file_open;
@@ -57,15 +55,9 @@ public:
             SegmentationQtClass->setObjectName(QStringLiteral("SegmentationQtClass"));
         SegmentationQtClass->resize(1371, 801);
         SegmentationQtClass->setTabShape(QTabWidget::Rounded);
-        tools_featureCatchOn = new QAction(SegmentationQtClass);
-        tools_featureCatchOn->setObjectName(QStringLiteral("tools_featureCatchOn"));
-        tools_featureCatchOn->setCheckable(true);
         tools_GCD_catchON = new QAction(SegmentationQtClass);
         tools_GCD_catchON->setObjectName(QStringLiteral("tools_GCD_catchON"));
         tools_GCD_catchON->setCheckable(true);
-        tools_GCD_PR_catchON = new QAction(SegmentationQtClass);
-        tools_GCD_PR_catchON->setObjectName(QStringLiteral("tools_GCD_PR_catchON"));
-        tools_GCD_PR_catchON->setCheckable(true);
         tools_GCD_Genrate = new QAction(SegmentationQtClass);
         tools_GCD_Genrate->setObjectName(QStringLiteral("tools_GCD_Genrate"));
         tools_GCD_Genrate->setCheckable(true);
@@ -152,9 +144,7 @@ public:
         menuBar->addAction(menu_file->menuAction());
         menuBar->addAction(menuTools->menuAction());
         menu_file->addAction(file_open);
-        menuTools->addAction(tools_featureCatchOn);
         menuTools->addAction(tools_GCD_catchON);
-        menuTools->addAction(tools_GCD_PR_catchON);
         menuTools->addSeparator();
         menuTools->addAction(tools_GCD_Clear);
         menuTools->addAction(tools_GCD_Genrate);
@@ -167,11 +157,9 @@ public:
     void retranslateUi(QMainWindow *SegmentationQtClass)
     {
         SegmentationQtClass->setWindowTitle(QApplication::translate("SegmentationQtClass", "SegmentViewer", 0));
-        tools_featureCatchOn->setText(QApplication::translate("SegmentationQtClass", "FeatureCatchON", 0));
-        tools_GCD_catchON->setText(QApplication::translate("SegmentationQtClass", "GCD_CatchON", 0));
-        tools_GCD_PR_catchON->setText(QApplication::translate("SegmentationQtClass", "GCD_PR_CatchON", 0));
-        tools_GCD_Genrate->setText(QApplication::translate("SegmentationQtClass", "GCD_Genrate", 0));
-        tools_GCD_Clear->setText(QApplication::translate("SegmentationQtClass", "GCD_Clear", 0));
+        tools_GCD_catchON->setText(QApplication::translate("SegmentationQtClass", "Catch", 0));
+        tools_GCD_Genrate->setText(QApplication::translate("SegmentationQtClass", "Generate", 0));
+        tools_GCD_Clear->setText(QApplication::translate("SegmentationQtClass", "Clear", 0));
         file_open->setText(QApplication::translate("SegmentationQtClass", "Open...", 0));
         label_gray->setText(QApplication::translate("SegmentationQtClass", "Label_Gray", 0));
         label_division->setText(QApplication::translate("SegmentationQtClass", "Label_Division", 0));

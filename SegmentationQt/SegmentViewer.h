@@ -106,12 +106,8 @@ namespace IS{
 		int lastMouseButton;
 
 		ViwerMode Mode(){
-			if (ui.tools_featureCatchOn->isChecked())
-				return FEATURE_CATCH;
 			if (ui.tools_GCD_catchON->isChecked())
 				return GCD_CATCH;
-			if (ui.tools_GCD_PR_catchON->isChecked())
-				return GCD_PR_CATCH;
 			return VIEW;
 		}
 

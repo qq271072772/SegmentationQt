@@ -160,9 +160,7 @@
     <property name="title">
      <string>Tools</string>
     </property>
-    <addaction name="tools_featureCatchOn"/>
     <addaction name="tools_GCD_catchON"/>
-    <addaction name="tools_GCD_PR_catchON"/>
     <addaction name="separator"/>
     <addaction name="tools_GCD_Clear"/>
     <addaction name="tools_GCD_Genrate"/>
@@ -179,28 +177,12 @@
    </attribute>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <action name="tools_featureCatchOn">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>FeatureCatchON</string>
-   </property>
-  </action>
   <action name="tools_GCD_catchON">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>GCD_CatchON</string>
-   </property>
-  </action>
-  <action name="tools_GCD_PR_catchON">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>GCD_PR_CatchON</string>
+    <string>Catch</string>
    </property>
   </action>
   <action name="tools_GCD_Genrate">
@@ -208,7 +190,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>GCD_Genrate</string>
+    <string>Generate</string>
    </property>
   </action>
   <action name="tools_GCD_Clear">
@@ -216,7 +198,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>GCD_Clear</string>
+    <string>Clear</string>
    </property>
   </action>
   <action name="file_open">

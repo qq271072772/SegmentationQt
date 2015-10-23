@@ -10,19 +10,11 @@ namespace IS{
 		ui.setupUi(this);
 		ui.scrollview_gray->viewport()->installEventFilter(this);
 		ui.scrollview_division->viewport()->installEventFilter(this);
-		//ui.scrollview_gray->horizontalScrollBar()->setEnabled(false);
-		//ui.scrollview_gray->verticalScrollBar()->setEnabled(false);
-		//ui.scrollview_division->horizontalScrollBar()->setEnabled(false);
-		//ui.scrollview_division->verticalScrollBar()->setEnabled(false);
 		ui.label_gray->installEventFilter(this);
 
-		modemenu.Add(ui.tools_featureCatchOn);
 		modemenu.Add(ui.tools_GCD_catchON);
-		modemenu.Add(ui.tools_GCD_PR_catchON);
 		ui.file_open->installEventFilter(this);
-		ui.tools_featureCatchOn->installEventFilter(this);
 		ui.tools_GCD_catchON->installEventFilter(this);
-		ui.tools_GCD_PR_catchON->installEventFilter(this);
 		ui.tools_GCD_Clear->installEventFilter(this);
 		ui.tools_GCD_Genrate->installEventFilter(this);
 	}
@@ -239,26 +231,28 @@ namespace IS{
 		data->scroll->verticalScrollBar()->setValue(data->scroll->verticalScrollBar()->value() - deltaY);
 	}
 
+	//This function is removed
 	void SegmentViewer::FeatureCatch(int id, QMouseEvent* ev){
-		id = ID_GRAY;
-		ImageData* data = images[id];
-		QImage image = data->pixmap.toImage();
-		uchar bright = qGray(image.pixel(ev->x() / data->scale, ev->y() / data->scale));
+		//id = ID_GRAY;
+		//ImageData* data = images[id];
+		//QImage image = data->pixmap.toImage();
+		//uchar bright = qGray(image.pixel(ev->x() / data->scale, ev->y() / data->scale));
 
-		SegmentManager* segMgr = SegmentManager::Instance();
-		IplImage* gray = segMgr->GrayImage();
+		//SegmentManager* segMgr = SegmentManager::Instance();
+		//IplImage* gray = segMgr->GrayImage();
 
-		if (ev->button() == Qt::LeftButton){
-			IplImage* division = segMgr->GetThreeDivision(gray, bright, segMgr->BottomValue(), segMgr->TopTolerance(), segMgr->BottomTolerance());
-			RegisterImage(ID_DIVISION, division);
-			ui.tools_featureCatchOn->setChecked(false);
-		}
-		else if (ev->button() == Qt::RightButton){
-			IplImage* division = segMgr->GetThreeDivision(gray, segMgr->TopValue(), bright, segMgr->TopTolerance(), segMgr->BottomTolerance());
-			RegisterImage(ID_DIVISION, division);
-			ui.tools_featureCatchOn->setChecked(false);
-		}
+		//if (ev->button() == Qt::LeftButton){
+		//	IplImage* division = segMgr->GetThreeDivision(gray, bright, segMgr->BottomValue(), segMgr->TopTolerance(), segMgr->BottomTolerance());
+		//	RegisterImage(ID_DIVISION, division);
+		//	ui.tools_featureCatchOn->setChecked(false);
+		//}
+		//else if (ev->button() == Qt::RightButton){
+		//	IplImage* division = segMgr->GetThreeDivision(gray, segMgr->TopValue(), bright, segMgr->TopTolerance(), segMgr->BottomTolerance());
+		//	RegisterImage(ID_DIVISION, division);
+		//	ui.tools_featureCatchOn->setChecked(false);
+		//}
 	}
+
 	void SegmentViewer::GCD_Catch(int id, QMouseEvent* ev, bool isPr){
 		ImageData* data = images[id];
 		int realX = ev->x() /data->scale;
