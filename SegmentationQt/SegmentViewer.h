@@ -54,7 +54,7 @@ namespace IS{
 		static const int ID_GRAY = 1;
 		static const int ID_DIVISION = 2;
 
-		static const int GCD_POINT_RADIUS = 3;
+		static const int GCD_POINT_RADIUS = 5;
 		static const int GCD_POINT_THICKNESS = 0;
 
 		static const float SCALE_MIN;
@@ -88,7 +88,7 @@ namespace IS{
 
 		enum ViwerMode
 		{
-			VIEW,FEATURE_CATCH , GCD_CATCH, GCD_PR_CATCH
+			VIEW,GCD_CATCH
 		};
 
 		static SegmentViewer* instance;

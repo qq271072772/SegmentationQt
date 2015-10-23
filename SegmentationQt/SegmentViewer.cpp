@@ -146,22 +146,21 @@ namespace IS{
 
 		switch (Mode())
 		{
-		case FEATURE_CATCH:
-			if (ev->type() == QEvent::MouseButtonRelease)
-				FeatureCatch(id, (QMouseEvent*)ev);
-			break;
+		//case FEATURE_CATCH:
+		//	if (ev->type() == QEvent::MouseButtonRelease)
+		//		FeatureCatch(id, (QMouseEvent*)ev);
+		//	break;
 		case GCD_CATCH:
-		case GCD_PR_CATCH:
 			switch (ev->type())
 			{
 			case  QEvent::MouseButtonPress:
 				mouseDown = true;
 				lastMouseButton = ((QMouseEvent*)ev)->button();
-				GCD_Catch(id, (QMouseEvent*)ev, Mode() == GCD_PR_CATCH);
+				GCD_Catch(id, (QMouseEvent*)ev, Mode() != GCD_CATCH);
 				break;
 			case QEvent::MouseMove:
 				if (mouseDown)
-					GCD_Catch(id, (QMouseEvent*)ev, Mode() == GCD_PR_CATCH);
+					GCD_Catch(id, (QMouseEvent*)ev, Mode() != GCD_CATCH);
 				break;
 			case QEvent::MouseButtonRelease:
 				mouseDown = false;
@@ -303,10 +302,6 @@ namespace IS{
 			RegisterImage(SegmentViewer::ID_SRC, segMgr->SrcImage());
 			RegisterImage(SegmentViewer::ID_DIVISION, segMgr->RetImage());
 		}
-		qDebug() << filename;
-		//segMgr->LoadSrcImage(filename);
-		//RegisterImage(SegmentViewer::ID_SRC, segMgr->SrcImage());
-		//RegisterImage(SegmentViewer::ID_DIVISION, segMgr->RetImage());
 	}
 	void SegmentViewer::ClearPaint(int id){
 		ImageData* data = images[id];
@@ -347,9 +342,7 @@ namespace IS{
 			}
 		}
 			break;
-		case FEATURE_CATCH:
-		case GCD_CATCH:
-		case GCD_PR_CATCH:{
+		case GCD_CATCH:{
 			List<int> keys = images.Keys();
 			for (int i = 0; i < keys.Count(); i++){
 				if (obj == images.GetCasted(keys[i])->label){
