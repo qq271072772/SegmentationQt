@@ -150,10 +150,11 @@ namespace IS {
 			circle(mask, Point(point.x(), point.y()), segViewer->GCD_POINT_RADIUS, cv::GC_PR_BGD);
 		}
 		grabCut(cv::cvarrToMat(src), mask, cv::Rect(), bgdModel, fgdModel, GCD_ITE_COUNT, cv::GC_INIT_WITH_MASK);
-		if (divisionImg == NULL) {
-			divisionImg = cvCreateImage(cvGetSize(src), IPL_DEPTH_8U, 1);
-			activeImgs.Add(divisionImg);
-		}
+
+		EnsureImg(divisionImg);
+		divisionImg = cvCreateImage(cvGetSize(src), IPL_DEPTH_8U, 1);
+		activeImgs.Add(divisionImg);
+
 		for (int i = 0; i < src->height; i++){
 			for (int j = 0; j < src->width; j++){
 				uchar label = mask.at<uchar>(i, j);
