@@ -226,3 +226,9 @@ _Pvt_Extensions
 # FAKE - F# Make
 .fake/
 
+
+
+*.jpg
+*.jpeg
+*.bmp
+*.png

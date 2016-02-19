@@ -63,8 +63,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
-    <IncludePath>E:\Plugin\Opencv\opencv\build\include\opencv2;E:\Plugin\Opencv\opencv\build\include\opencv;E:\Plugin\Opencv\opencv\build\include;$(IncludePath)</IncludePath>
-    <LibraryPath>E:\Plugin\Opencv\opencv\build\x64\vc12\lib;E:\Plugin\Opencv\opencv\build\x64\vc12\staticlib;E:\Plugin\Opencv\opencv\build\x86\vc12\lib;E:\Plugin\Opencv\opencv\build\x86\vc12\staticlib;$(LibraryPath)</LibraryPath>
+    <IncludePath>E:\Software\Plugin\Opencv\build\include\opencv2;E:\Software\Plugin\Opencv\build\include\opencv;E:\Software\Plugin\Opencv\build\include;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\Software\Plugin\Opencv\build\x64\vc12\lib;E:\Software\Plugin\Opencv\build\x64\vc12\staticlib;E:\Software\Plugin\Opencv\build\x86\vc12\lib;E:\Software\Plugin\Opencv\build\x86\vc12\staticlib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
