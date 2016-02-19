@@ -45,7 +45,7 @@ namespace IS{
 
 		float oldScale = 1;
 		if (images.ContainsKey(id)){
-			oldScale = images.GetCasted(id)->scale;
+			oldScale = images[id]->scale;
 			delete images[id];
 			images.Remove(id);
 		}
@@ -62,7 +62,7 @@ namespace IS{
 
 			ui.pool_gray->resize(qImg.width(), qImg.height());
 
-			images[id] = new ImageData(id, ui.label_gray, ui.pool_gray, ui.scrollview_gray);
+			images.Add(id,new ImageData(id, ui.label_gray, ui.pool_gray, ui.scrollview_gray));
 			break;
 		case ID_GRAY:{
 			qImg = QImage((uchar*)cvImg->imageData, cvImg->width, cvImg->height, cvImg->widthStep, QImage::Format_Grayscale8);
@@ -72,7 +72,7 @@ namespace IS{
 
 			ui.pool_gray->resize(qImg.width(), qImg.height());
 
-			images[id] = new ImageData(id, ui.label_gray, ui.pool_gray, ui.scrollview_gray);
+			images.Add(id, new ImageData(id, ui.label_gray, ui.pool_gray, ui.scrollview_gray));
 		}
 					 break;
 		case ID_DIVISION:
@@ -80,7 +80,7 @@ namespace IS{
 			ui.label_division->setFixedSize(qImg.width(), qImg.height());
 			ui.label_division->setPixmap(QPixmap::fromImage(qImg));
 			ui.pool_division->resize(qImg.width(), qImg.height());
-			images[id] = new ImageData(id, ui.label_division, ui.pool_division, ui.scrollview_division);
+			images.Add(id, new ImageData(id, ui.label_division, ui.pool_division, ui.scrollview_division));
 			break;
 		default:
 			break;
@@ -109,7 +109,7 @@ namespace IS{
 			float delta = wev->angleDelta().y()*WHEEL_SENSIBILITY;
 			List<int> keys = images.Keys();
 			for (int i = 0; i < keys.Count(); i++)
-				ScaleImage(images.GetCasted(keys[i])->id, delta);
+				ScaleImage(images[keys[i]]->id, delta);
 		}
 		break;
 		case QEvent::MouseButtonPress:
@@ -130,7 +130,7 @@ namespace IS{
 				float deltaY = (mev->y() - lastMousePos.y())*SCROLL_SENSIBILITY;
 				List<int> keys = images.Keys();
 				for (int i = 0; i < keys.Count(); i++)
-					ScrollImage(images.GetCasted(keys[i])->id, deltaX, deltaY);
+					ScrollImage(images[keys[i]]->id, deltaX, deltaY);
 				lastMousePos.setX(mev->x());
 				lastMousePos.setY(mev->y());
 			}
@@ -335,8 +335,8 @@ namespace IS{
 		case VIEW:{
 			List<int> keys = images.Keys();
 			for (int i = 0; i < keys.Count(); i++){
-				if (obj == images.GetCasted(keys[i])->scroll->viewport()){
-					DealViewEvent(images.GetCasted(keys[i])->id, ev);
+				if (obj == images[keys[i]]->scroll->viewport()){
+					DealViewEvent(images[keys[i]]->id, ev);
 					return true;
 				}
 			}
@@ -345,8 +345,8 @@ namespace IS{
 		case GCD_CATCH:{
 			List<int> keys = images.Keys();
 			for (int i = 0; i < keys.Count(); i++){
-				if (obj == images.GetCasted(keys[i])->label){
-					DealCatchEvent(images.GetCasted(keys[i])->id, ev);
+				if (obj == images[keys[i]]->label){
+					DealCatchEvent(images[keys[i]]->id, ev);
 					return false;
 				}
 			}

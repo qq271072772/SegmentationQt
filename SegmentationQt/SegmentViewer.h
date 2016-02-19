@@ -13,6 +13,8 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include "Utility.h"
 
+using namespace Utility;
+
 namespace IS{
 
 	struct ImageData{
