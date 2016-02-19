@@ -27,8 +27,10 @@ namespace IS {
 			activeImgs.Add(ret);
 			srcImg = ret;
 			ConvertToGrayImage(srcImg);
-			GetThreeDivision(grayImg, 50, 100, 30, 20);
 		}
+	}
+	void SegmentManager::SaveDstImage(char* filename){
+		cvSaveImage("output.jpg", divisionImg);
 	}
 
 	IplImage* SegmentManager::ConvertToGrayImage(IplImage* src) {
@@ -38,92 +40,9 @@ namespace IS {
 		grayImg = cvCreateImage(cvGetSize(src), IPL_DEPTH_8U, 1);
 		activeImgs.Add(grayImg);
 		cvCvtColor(src, grayImg, CV_RGB2GRAY);
+		divisionImg = grayImg;
 		return grayImg;
 	}
-	IplImage* SegmentManager::GetThreeDivisionAuto(IplImage* src, int tstep) {
-		for (int i = 0; i < src->height; i++)
-			for (int j = 0; j < src->width; j++) {
-				uchar bright = CV_IMAGE_ELEM(src, uchar, i, j);
-				brightness[bright]++;
-			}
-		int hill[256];
-		int peak1 = -1, peak2 = -1, peakVal1 = 0, peakVal2 = 0;
-		for (int i = 0; i < MAX_COLOR ; i++) {
-			hill[i] = 0;
-			for (int j = i - tstep + 1; j <= i + tstep - 1; j++) {
-				if (j >= 0 && j < MAX_COLOR)
-					hill[i] += brightness[j];
-			}
-			if (hill[i] > peakVal1) {
-				peakVal1 = hill[i];
-				peak1 = i;
-			}
-		}
-		for (int i = 0; i < MAX_COLOR;i++)
-			if (hill[i]>peakVal2 && i != peak1) {
-				peakVal2 = hill[i];
-				peak2 = i;
-			}
-
-		if (peak1 < 0 || peak2 < 0)
-			return NULL;
-		if (peak2 < peak1) {
-			int tmp = peak1;
-			peak1 = peak2;
-			peak2 = tmp;
-		}
-
-		IplImage* ret = cvCreateImage(cvGetSize(src), IPL_DEPTH_8U, 1);
-		activeImgs.Add(ret);
-
-		cvCopy(src, ret, NULL);
-		for (int i = 0; i < ret->height; i++)
-			for (int j = 0; j < ret->width; j++) {
-				uchar bright = CV_IMAGE_ELEM(src, uchar, i, j);
-				if (bright < peak1)
-					CV_IMAGE_ELEM(ret, uchar, i, j) = LABEL_BOTTOM;
-				else if (bright > peak2)
-					CV_IMAGE_ELEM(ret, uchar, i, j) = LABEL_TOP;
-				else
-					CV_IMAGE_ELEM(ret, uchar, i, j) = LABEL_INTERMEDIATE;
-			}
-
-		return ret;
-	}
-	IplImage* SegmentManager::GetThreeDivision(IplImage* src, int featureTop,int featureBottom,int toleranceTop,int toleranceBottom) {
-
-		if (src == NULL)
-			return NULL;
-
-		topValue = featureTop;
-		bottomValue = featureBottom;
-		topToleranceValue = toleranceTop;
-		bottomToleranceValue = toleranceBottom;
-
-		EnsureImg(divisionImg);
-
-		divisionImg = cvCreateImage(cvGetSize(src), IPL_DEPTH_8U, 1);
-		activeImgs.Add(divisionImg);
-		cvCopy(src, divisionImg, NULL);
-		for (int i = 0; i < divisionImg->height; i++)
-			for (int j = 0; j < divisionImg->width; j++) {
-				uchar bright = CV_IMAGE_ELEM(src, uchar, i, j);
-				int topDelta = abs(bright - featureTop);
-				int bottomDelta = abs(bright - featureBottom);
-				if (topDelta <= toleranceTop && bottomDelta <= toleranceBottom){
-					CV_IMAGE_ELEM(divisionImg, uchar, i, j) = topDelta <= bottomDelta ? LABEL_TOP: LABEL_BOTTOM;
-				}
-				else if (topDelta <= toleranceTop)
-					CV_IMAGE_ELEM(divisionImg, uchar, i, j) = LABEL_TOP;
-				else if (bottomDelta <= toleranceBottom)
-					CV_IMAGE_ELEM(divisionImg, uchar, i, j) = LABEL_BOTTOM;
-				else
-					CV_IMAGE_ELEM(divisionImg, uchar, i, j) = LABEL_INTERMEDIATE;
-			}
-
-		return divisionImg;
-	}
-
 	IplImage* SegmentManager::GetGrabCut(IplImage* src){
 		using namespace cv;
 		SegmentViewer* segViewer = SegmentViewer::Instance();

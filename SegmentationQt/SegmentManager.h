@@ -73,16 +73,9 @@ namespace IS {
 			}
 
 			void LoadSrcImage(char * filename);
+			void SaveDstImage(char* filename);
 
 			IplImage* ConvertToGrayImage(IplImage* src);
-
-			//tstep = threshold step , find two peak point of gray scale
-			//bad result,removed
-			IplImage* GetThreeDivisionAuto(IplImage* src, int tstep = 1);
-
-			//get result by adjustment feature and tolerance
-			//removed
-			IplImage* GetThreeDivision(IplImage* src, int featureTop, int featureBottom, int toleranceTop, int toleranceBottom);
 
 			//get grab cut result
 			IplImage* GetGrabCut(IplImage* src);

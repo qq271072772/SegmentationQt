@@ -324,6 +324,7 @@ namespace IS{
 		msgBox->show();
 		IplImage* division = segMgr->GetGrabCut(segMgr->SrcImage());
 		RegisterImage(ID_DIVISION, division);
+		segMgr->SaveDstImage(NULL);
 		msgBox->close();
 	}
 
