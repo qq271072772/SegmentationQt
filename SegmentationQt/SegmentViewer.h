@@ -12,6 +12,7 @@
 #include <opencv2/core/core.hpp> 
 #include <opencv2/imgproc/imgproc.hpp>
 #include "Utility.h"
+#include "SegmentManager.h"
 
 using namespace Utility;
 
@@ -53,11 +54,7 @@ namespace IS{
 	public:
 
 		static const int ID_SRC = 0;
-		static const int ID_GRAY = 1;
-		static const int ID_DIVISION = 2;
-
-		static const int GCD_POINT_RADIUS = 8;
-		static const int GCD_POINT_THICKNESS = 0;
+		static const int ID_DST = 1;
 
 		static const float SCALE_MIN;
 		static const float SCALE_MAX;
@@ -73,42 +70,33 @@ namespace IS{
 
 		void RegisterImage(int id, IplImage* cvImg);
 
-		List<QPoint>& FgdPixels(){
-			return fgdPixels;
-		}
-		List<QPoint>& BgdPixels(){
-			return bgdPixels;
-		}
-		List<QPoint>& PrFgdPixels(){
-			return prFgdPixels;
-		}
-		List<QPoint>& PrBgdPixels(){
-			return prBgdPixels;
-		}
-
 	private:
+
+		int GC_ITE_CNT = 10;
+		int GC_DOWN_SAMPLE_CNT = 2;
+		int GC_POINT_RADIUS = 8;
 
 		enum ViwerMode
 		{
 			VIEW,GCD_CATCH
 		};
 
-		static SegmentViewer* instance;
+		static SegmentViewer* m_instance;
+		SegmentManager* m_segMgr;
 
-		Ui::SegmentationQtClass ui;
+		Ui::SegmentationQtClass m_ui;
 
-		Dictionary<int, ImageData*> images;
+		Dictionary<int, ImageData*> m_images;
 
-		List<QAction*> modemenu;
+		List<QAction*> m_modemenu;
+		List<QAction*> m_resolution;
 
-		List<QPoint> fgdPixels, bgdPixels, prFgdPixels, prBgdPixels;
-
-		bool mouseDown = false;
-		QPoint lastMousePos;
-		int lastMouseButton;
+		bool m_mouseDown = false;
+		QPoint m_lastMousePos;
+		int m_lastMouseButton;
 
 		ViwerMode Mode(){
-			if (ui.tools_GCD_catchON->isChecked())
+			if (m_ui.tools_GCD_catchON->isChecked())
 				return GCD_CATCH;
 			return VIEW;
 		}
@@ -117,6 +105,7 @@ namespace IS{
 		void DealCatchEvent(int id,QEvent* ev);
 		void DealModeMenuEvent(QAction* obj, QEvent* ev);
 		bool DealToolMenuEvent(QObject* obj, QEvent* ev);
+		void DealResolutionMenuEvent(QObject* obj, QEvent* ev);
 
 		void FeatureCatch(int id, QMouseEvent* ev);
 		void GCD_Catch(int id, QMouseEvent* ev, bool isPr);

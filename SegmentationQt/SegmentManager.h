@@ -1,12 +1,15 @@
+#ifndef SEGMENT_MANAGER
+#define SEGMENT_MANAGER
+
 #include<iostream>
 #include<math.h>
 #include <opencv2/core/core.hpp> 
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include "Utility.h"
-#include "SegmentViewer.h"
 
 using namespace std;
+using namespace Utility;
 
 namespace IS {
 	class SegmentManager {
@@ -16,76 +19,53 @@ namespace IS {
 			const int LABEL_INTERMEDIATE = 128;
 			const int LABEL_BOTTOM = 0;
 			const int MAX_COLOR = 256;
-			const int MAX_TOLERANCE = 100;
-
-			const int GCD_ITE_COUNT = 10;
-
-			const int DOWN_SAMPLE_CNT = 2;
 
 			int brightness[256];
-
 			
-			IplImage *srcImg=NULL,*divisionImg = NULL, *grayImg = NULL;
-			IplImage *srcCpImg = NULL;
-			int topValue, bottomValue, topToleranceValue, bottomToleranceValue;
+			IplImage *m_srcImg = NULL, *m_dstImg = NULL, *m_srcCpImg = NULL;
+			cv::Mat m_mask;
+			bool m_maskInited;
 
-			static SegmentManager* instance;
+			static SegmentManager* m_instance;
 
-			List<IplImage*> activeImgs;
+			List<IplImage*> m_activeImgs;
 
-			void EnsureImg(IplImage* img){
+			IplImage* EnsureImg(IplImage* img){
 				if (img != NULL){
-					activeImgs.Remove(img);
+					m_activeImgs.Remove(img);
 					cvReleaseImage(&img);
+					return NULL;
 				}
+				return img;
 			}
-
 			IplImage* DownSample(IplImage* src, int cnt = 1);
 			IplImage* UpSample(IplImage* src, int cnt = 1);
 
 		public:
-
-			const char* SRC_WIN = "Source";
-			const char* GRAY_WIN = "Gray";
-			const char* DIVISION_WIN = "Division";
-
-			static bool debugModeOn;
 
 			SegmentManager();
 			~SegmentManager();
 
 			static SegmentManager* Instance();
 
-			IplImage* GrayImage() {
-				return grayImg;
-			}
 			IplImage* SrcImage(){
-				return srcCpImg;
+				return m_srcCpImg;
 			}
-			IplImage* RetImage(){
-				return divisionImg;
+			IplImage* DstImage(){
+				return m_dstImg;
 			}
-			int TopValue() {
-				return topValue;
-			}
-			int BottomValue() {
-				return bottomValue;
-			}
-			int TopTolerance() {
-				return topToleranceValue;
-			}
-			int BottomTolerance() {
-				return bottomToleranceValue;
-			}
+
+			void DrawMaskPoint(Vector2 p, int radius, cv::GrabCutClasses type);
+			void ClearMask();
 
 			void LoadSrcImage(char * filename);
 			void SaveDstImage(char* filename);
 
 			IplImage* ConvertToGrayImage(IplImage* src);
-
-			//get grab cut result
-			IplImage* GetGrabCut();
+			void GenerateGrabCut(int iteCnt, int downSampleCnt);
 
 			void ReleaseAll();
 	};
 }
+
+#endif

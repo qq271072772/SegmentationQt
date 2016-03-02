@@ -4,9 +4,9 @@ namespace IS {
 
 	//Constructor
 	SegmentManager::SegmentManager(){
-		grayImg = NULL;
-		divisionImg = NULL;
-		activeImgs.Clear();
+		m_dstImg = NULL;
+		m_activeImgs.Clear();
+		m_maskInited = false;
 	}
 	SegmentManager::~SegmentManager(){
 
@@ -16,12 +16,12 @@ namespace IS {
 	IplImage*  SegmentManager::DownSample(IplImage* src, int cnt){
 		if (src == NULL)
 			return NULL;
-		IplImage* cur = src;
+		IplImage* cur = cvCreateImage(cvGetSize(src), src->depth, src->nChannels);
+		cvCopy(src, cur);
 		for (int i = 0; i < cnt; i++){
 			IplImage* down = cvCreateImage(CvSize(cur->width / 2, cur->height / 2), cur->depth, cur->nChannels);
 			cvPyrDown(cur, down);
-			if (cur != src)
-				cvReleaseImage(&cur);
+			cvReleaseImage(&cur);
 			cur = down;
 		}
 		return cur;
@@ -29,12 +29,12 @@ namespace IS {
 	IplImage*  SegmentManager::UpSample(IplImage* src, int cnt){
 		if (src == NULL)
 			return NULL;
-		IplImage* cur = src;
+		IplImage* cur = cvCreateImage(cvGetSize(src), src->depth, src->nChannels);
+		cvCopy(src, cur);
 		for (int i = 0; i < cnt; i++){
 			IplImage* up = cvCreateImage(CvSize(cur->width * 2, cur->height * 2), cur->depth, cur->nChannels);
 			cvPyrUp(cur, up);
-			if (cur != src)
-				cvReleaseImage(&cur);
+			cvReleaseImage(&cur);
 			cur = up;
 		}
 		return cur;
@@ -42,72 +42,52 @@ namespace IS {
 
 	//Public
 
-	bool SegmentManager::debugModeOn = true;
-	SegmentManager* SegmentManager::instance = NULL;
+	SegmentManager* SegmentManager::m_instance = NULL;
 
 	void SegmentManager::LoadSrcImage(char* filename){
-		IplImage* ret = cvLoadImage(filename, CV_LOAD_IMAGE_UNCHANGED);
+		IplImage* ret = cvLoadImage(filename, CV_LOAD_IMAGE_COLOR);
 		if (ret != NULL){
-			EnsureImg(srcImg);
-			EnsureImg(srcCpImg);
+			m_srcImg = EnsureImg(m_srcImg);
+			m_srcCpImg = EnsureImg(m_srcCpImg);
 
-			srcImg = ret;
-			srcCpImg = cvCreateImage(CvSize(srcImg->width,srcImg->height),srcImg->depth,srcImg->nChannels);
-			cvCopy(srcImg, srcCpImg);
-			cvCvtColor(srcCpImg, srcCpImg, CV_BGR2RGB);
-			divisionImg = cvCreateImage(CvSize(srcImg->width, srcImg->height), IPL_DEPTH_8U, 1);
-			activeImgs.Add(divisionImg);
+			m_srcImg = ret;
+			m_srcCpImg = cvCreateImage(CvSize(m_srcImg->width,m_srcImg->height),m_srcImg->depth,m_srcImg->nChannels);
+			cvCopy(m_srcImg, m_srcCpImg);
+			cvCvtColor(m_srcCpImg, m_srcCpImg, CV_BGR2RGB);
 
-			activeImgs.Add(srcImg);
-			activeImgs.Add(srcCpImg);
-			ConvertToGrayImage(srcImg);
+			m_activeImgs.Add(m_srcImg);
+			m_activeImgs.Add(m_srcCpImg);
+
+			ConvertToGrayImage(m_srcImg);
+
+			ClearMask();
 		}
 	}
 	void SegmentManager::SaveDstImage(char* filename){
-		cvSaveImage("output.jpg", divisionImg);
+		cvSaveImage("output.jpg", m_dstImg);
 	}
 
 	IplImage* SegmentManager::ConvertToGrayImage(IplImage* src) {
 		if (src == NULL)
 			return NULL;
-		EnsureImg(grayImg);
+		m_dstImg = EnsureImg(m_dstImg);
 
-		grayImg = cvCreateImage(cvGetSize(src), IPL_DEPTH_8U, 1);
-		activeImgs.Add(grayImg);
-		cvCvtColor(src, grayImg, CV_BGR2GRAY);
-		return grayImg;
+		m_dstImg = cvCreateImage(cvGetSize(src), IPL_DEPTH_8U, 1);
+		m_activeImgs.Add(m_dstImg);
+		cvCvtColor(src, m_dstImg, CV_BGR2GRAY);
+		return m_dstImg;
 	}
-	IplImage* SegmentManager::GetGrabCut(){
+	void SegmentManager::GenerateGrabCut(int iteCnt, int downSampleCnt){
+		if (!m_maskInited)
+			return;
 		using namespace cv;
-		SegmentViewer* segViewer = SegmentViewer::Instance();
-		Mat mask(srcImg->height, srcImg->width, CV_8UC1), fgdModel, bgdModel;
-		for (int i = 0; i < srcImg->height; i++){
-			for (int j = 0; j < srcImg->width; j++){
-				mask.at<uchar>(i, j) = cv::GC_PR_BGD;
-			}
-		}
-		for (int i = 0; i < segViewer->FgdPixels().Count(); i++){
-			QPoint point = segViewer->FgdPixels()[i];
-			circle(mask, Point(point.x(), point.y()), segViewer->GCD_POINT_RADIUS, cv::GC_FGD, -1);
-		}
-		for (int i = 0; i < segViewer->BgdPixels().Count(); i++){
-			QPoint point = segViewer->BgdPixels()[i];
-			circle(mask, Point(point.x(), point.y()), segViewer->GCD_POINT_RADIUS, cv::GC_BGD,-1);
-		}
-		for (int i = 0; i < segViewer->PrFgdPixels().Count(); i++){
-			QPoint point = segViewer->PrFgdPixels()[i];
-			circle(mask, Point(point.x(), point.y()), segViewer->GCD_POINT_RADIUS, cv::GC_PR_FGD,-1);
-		}
-		for (int i = 0; i < segViewer->PrBgdPixels().Count(); i++){
-			QPoint point = segViewer->PrBgdPixels()[i];
-			circle(mask, Point(point.x(), point.y()), segViewer->GCD_POINT_RADIUS, cv::GC_PR_BGD,-1);
-		}
+		Mat fgdModel, bgdModel;
 
-		IplImage* downSrcImg = DownSample(srcImg, DOWN_SAMPLE_CNT);
-		IplImage* downMaskImg = DownSample(&(IplImage(mask)), DOWN_SAMPLE_CNT);
+		IplImage* downSrcImg = DownSample(m_srcImg, downSampleCnt);
+		IplImage* downMaskImg = DownSample(&(IplImage(m_mask)), downSampleCnt);
 		Mat downMaskMat = cvarrToMat(downMaskImg);
 
-		grabCut(cvarrToMat(downSrcImg), downMaskMat, cv::Rect(), bgdModel, fgdModel, GCD_ITE_COUNT, cv::GC_INIT_WITH_MASK);
+		grabCut(cvarrToMat(downSrcImg), downMaskMat, cv::Rect(), bgdModel, fgdModel, iteCnt, cv::GC_INIT_WITH_MASK);
 
 		for (int i = 0; i < downMaskImg->height; i++){
 			for (int j = 0; j < downMaskImg->width; j++){
@@ -116,28 +96,41 @@ namespace IS {
 			}
 		}
 
-		EnsureImg(divisionImg);
-		divisionImg=UpSample(downMaskImg, DOWN_SAMPLE_CNT);
-		activeImgs.Add(divisionImg);
+		m_dstImg = EnsureImg(m_dstImg);
+		m_dstImg = UpSample(downMaskImg, downSampleCnt);
+		m_activeImgs.Add(m_dstImg);
 
 
 		cvReleaseImage(&downSrcImg);
 		cvReleaseImage(&downMaskImg);
-
-		return divisionImg;
+	}
+	void SegmentManager::DrawMaskPoint(Vector2 p, int radius, cv::GrabCutClasses type){
+		circle(m_mask, cv::Point(p.X(), p.Y()), radius, type, -1);
+		m_maskInited = true;
+	}
+	void SegmentManager::ClearMask(){
+		if (m_srcImg == NULL)
+			return;
+		m_mask = cv::Mat(m_srcImg->height, m_srcImg->width, CV_8UC1);
+		for (int i = 0; i < m_srcImg->height; i++){
+			for (int j = 0; j < m_srcImg->width; j++){
+				m_mask.at<uchar>(i, j) = cv::GC_PR_BGD;
+			}
+		}
+		m_maskInited = false;
 	}
 
 	SegmentManager* SegmentManager::Instance() {
-		if (instance == NULL) {
-			instance = new SegmentManager();
+		if (m_instance == NULL) {
+			m_instance = new SegmentManager();
 		}
-		return instance;
+		return m_instance;
 	}
 
 	void SegmentManager::ReleaseAll() {
-		for (int i = 0; i < activeImgs.Count();i++) {
-			if (activeImgs[i] != NULL) {
-				IplImage* tmp = activeImgs[i];
+		for (int i = 0; i < m_activeImgs.Count();i++) {
+			if (m_activeImgs[i] != NULL) {
+				IplImage* tmp = m_activeImgs[i];
 				cvReleaseImage(&tmp);
 			}
 		}

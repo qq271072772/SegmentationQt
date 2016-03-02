@@ -64,8 +64,8 @@
         <widget class="QWidget" name="pool_gray">
          <property name="geometry">
           <rect>
-           <x>15</x>
-           <y>120</y>
+           <x>13</x>
+           <y>113</y>
            <width>640</width>
            <height>480</height>
           </rect>
@@ -109,8 +109,8 @@
         <widget class="QWidget" name="pool_division">
          <property name="geometry">
           <rect>
-           <x>15</x>
-           <y>120</y>
+           <x>13</x>
+           <y>113</y>
            <width>640</width>
            <height>480</height>
           </rect>
@@ -147,7 +147,7 @@
      <x>0</x>
      <y>0</y>
      <width>1371</width>
-     <height>24</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_file">
@@ -165,8 +165,24 @@
     <addaction name="tools_GCD_Clear"/>
     <addaction name="tools_GCD_Genrate"/>
    </widget>
+   <widget class="QMenu" name="menuOption">
+    <property name="title">
+     <string>Option</string>
+    </property>
+    <widget class="QMenu" name="menuResolution">
+     <property name="title">
+      <string>Resolution</string>
+     </property>
+     <addaction name="action_res_1_x"/>
+     <addaction name="action_res_1_2_x"/>
+     <addaction name="action_res_1_4_x"/>
+     <addaction name="action_res_1_8_x"/>
+    </widget>
+    <addaction name="menuResolution"/>
+   </widget>
    <addaction name="menu_file"/>
    <addaction name="menuTools"/>
+   <addaction name="menuOption"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -207,6 +223,41 @@
    </property>
    <property name="text">
     <string>Open...</string>
+   </property>
+  </action>
+  <action name="action_res_1_x">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>1x</string>
+   </property>
+  </action>
+  <action name="action_res_1_2_x">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>1/2 x</string>
+   </property>
+  </action>
+  <action name="action_res_1_4_x">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>1/4 x</string>
+   </property>
+  </action>
+  <action name="action_res_1_8_x">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>1/8 x</string>
    </property>
   </action>
  </widget>

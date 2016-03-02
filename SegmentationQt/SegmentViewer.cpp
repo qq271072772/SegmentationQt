@@ -1,5 +1,4 @@
 #include "SegmentViewer.h"
-#include "SegmentManager.h"
 
 namespace IS{
 
@@ -7,16 +6,27 @@ namespace IS{
 	SegmentViewer::SegmentViewer(QWidget *parent)
 		: QMainWindow(parent)
 	{
-		ui.setupUi(this);
-		ui.scrollview_gray->viewport()->installEventFilter(this);
-		ui.scrollview_division->viewport()->installEventFilter(this);
-		ui.label_gray->installEventFilter(this);
+		m_ui.setupUi(this);
+		m_ui.scrollview_gray->viewport()->installEventFilter(this);
+		m_ui.scrollview_division->viewport()->installEventFilter(this);
+		m_ui.label_gray->installEventFilter(this);
 
-		modemenu.Add(ui.tools_GCD_catchON);
-		ui.file_open->installEventFilter(this);
-		ui.tools_GCD_catchON->installEventFilter(this);
-		ui.tools_GCD_Clear->installEventFilter(this);
-		ui.tools_GCD_Genrate->installEventFilter(this);
+		m_modemenu.Add(m_ui.tools_GCD_catchON);
+		m_ui.file_open->installEventFilter(this);
+		m_ui.tools_GCD_catchON->installEventFilter(this);
+		m_ui.tools_GCD_Clear->installEventFilter(this);
+		m_ui.tools_GCD_Genrate->installEventFilter(this);
+
+		m_ui.action_res_1_x->installEventFilter(this);
+		m_ui.action_res_1_2_x->installEventFilter(this);
+		m_ui.action_res_1_4_x->installEventFilter(this);
+		m_ui.action_res_1_8_x->installEventFilter(this);
+		m_resolution.Add(m_ui.action_res_1_x);
+		m_resolution.Add(m_ui.action_res_1_2_x);
+		m_resolution.Add(m_ui.action_res_1_4_x);
+		m_resolution.Add(m_ui.action_res_1_8_x);
+
+		m_segMgr = SegmentManager::Instance();
 	}
 	SegmentViewer::~SegmentViewer()
 	{
@@ -31,10 +41,10 @@ namespace IS{
 	const float SegmentViewer::SCROLL_SENSIBILITY = 1;
 
 	SegmentViewer* SegmentViewer::Instance(){
-		if (instance == NULL){
-			instance = new SegmentViewer();
+		if (m_instance == NULL){
+			m_instance = new SegmentViewer();
 		}
-		return instance;
+		return m_instance;
 	}
 
 	/*Register origin and new image*/
@@ -44,10 +54,10 @@ namespace IS{
 			return;
 
 		float oldScale = 1;
-		if (images.ContainsKey(id)){
-			oldScale = images[id]->scale;
-			delete images[id];
-			images.Remove(id);
+		if (m_images.ContainsKey(id)){
+			oldScale = m_images[id]->scale;
+			delete m_images[id];
+			m_images.Remove(id);
 		}
 
 		QImage qImg;
@@ -56,31 +66,20 @@ namespace IS{
 		case ID_SRC:
 			qImg = QImage((uchar*)cvImg->imageData, cvImg->width, cvImg->height, cvImg->widthStep, QImage::Format_RGB888);
 
-			ui.label_gray->setFixedSize(qImg.width(), qImg.height());
-			ui.label_gray->setPixmap(QPixmap::fromImage(qImg));
+			m_ui.label_gray->setFixedSize(qImg.width(), qImg.height());
+			m_ui.label_gray->setPixmap(QPixmap::fromImage(qImg));
 
 
-			ui.pool_gray->resize(qImg.width(), qImg.height());
+			m_ui.pool_gray->resize(qImg.width(), qImg.height());
 
-			images.Add(id,new ImageData(id, ui.label_gray, ui.pool_gray, ui.scrollview_gray));
+			m_images.Add(id,new ImageData(id, m_ui.label_gray, m_ui.pool_gray, m_ui.scrollview_gray));
 			break;
-		case ID_GRAY:{
+		case ID_DST:
 			qImg = QImage((uchar*)cvImg->imageData, cvImg->width, cvImg->height, cvImg->widthStep, QImage::Format_Grayscale8);
-
-			ui.label_gray->setFixedSize(qImg.width(), qImg.height());
-			ui.label_gray->setPixmap(QPixmap::fromImage(qImg));
-
-			ui.pool_gray->resize(qImg.width(), qImg.height());
-
-			images.Add(id, new ImageData(id, ui.label_gray, ui.pool_gray, ui.scrollview_gray));
-		}
-					 break;
-		case ID_DIVISION:
-			qImg = QImage((uchar*)cvImg->imageData, cvImg->width, cvImg->height, cvImg->widthStep, QImage::Format_Grayscale8);
-			ui.label_division->setFixedSize(qImg.width(), qImg.height());
-			ui.label_division->setPixmap(QPixmap::fromImage(qImg));
-			ui.pool_division->resize(qImg.width(), qImg.height());
-			images.Add(id, new ImageData(id, ui.label_division, ui.pool_division, ui.scrollview_division));
+			m_ui.label_division->setFixedSize(qImg.width(), qImg.height());
+			m_ui.label_division->setPixmap(QPixmap::fromImage(qImg));
+			m_ui.pool_division->resize(qImg.width(), qImg.height());
+			m_images.Add(id, new ImageData(id, m_ui.label_division, m_ui.pool_division, m_ui.scrollview_division));
 			break;
 		default:
 			break;
@@ -89,17 +88,17 @@ namespace IS{
 			ScaleImage(id, oldScale - 1);
 	}
 	void SegmentViewer::ReleaseAll(){
-		List<int> keys = images.Keys();
+		List<int> keys = m_images.Keys();
 		for (int i = 0; i < keys.Count(); i++){
-			delete images[keys[i]];
+			delete m_images[keys[i]];
 		}
-		images.Clear();
+		m_images.Clear();
 		delete this;
 	}
 
 	//Private
 
-	SegmentViewer* SegmentViewer::instance = NULL;
+	SegmentViewer* SegmentViewer::m_instance = NULL;
 
 	void SegmentViewer::DealViewEvent(int id, QEvent* ev){
 		switch (ev->type()){
@@ -107,32 +106,32 @@ namespace IS{
 		{
 			QWheelEvent* wev = static_cast<QWheelEvent*>(ev);
 			float delta = wev->angleDelta().y()*WHEEL_SENSIBILITY;
-			List<int> keys = images.Keys();
+			List<int> keys = m_images.Keys();
 			for (int i = 0; i < keys.Count(); i++)
-				ScaleImage(images[keys[i]]->id, delta);
+				ScaleImage(m_images[keys[i]]->id, delta);
 		}
 		break;
 		case QEvent::MouseButtonPress:
 		{
 			QMouseEvent* mev = (QMouseEvent*)ev;
-			mouseDown = true;
-			lastMousePos.setX(mev->x());
-			lastMousePos.setY(mev->y());
+			m_mouseDown = true;
+			m_lastMousePos.setX(mev->x());
+			m_lastMousePos.setY(mev->y());
 		}
 		break;
 		case QEvent::MouseButtonRelease:
-			mouseDown = false;
+			m_mouseDown = false;
 			break;
 		case QEvent::MouseMove:
-			if (mouseDown){
+			if (m_mouseDown){
 				QMouseEvent* mev = (QMouseEvent*)ev;
-				float deltaX = (mev->x() - lastMousePos.x())*SCROLL_SENSIBILITY;
-				float deltaY = (mev->y() - lastMousePos.y())*SCROLL_SENSIBILITY;
-				List<int> keys = images.Keys();
+				float deltaX = (mev->x() - m_lastMousePos.x())*SCROLL_SENSIBILITY;
+				float deltaY = (mev->y() - m_lastMousePos.y())*SCROLL_SENSIBILITY;
+				List<int> keys = m_images.Keys();
 				for (int i = 0; i < keys.Count(); i++)
-					ScrollImage(images[keys[i]]->id, deltaX, deltaY);
-				lastMousePos.setX(mev->x());
-				lastMousePos.setY(mev->y());
+					ScrollImage(m_images[keys[i]]->id, deltaX, deltaY);
+				m_lastMousePos.setX(mev->x());
+				m_lastMousePos.setY(mev->y());
 			}
 			break;
 		default:
@@ -141,29 +140,25 @@ namespace IS{
 
 	}
 	void SegmentViewer::DealCatchEvent(int id, QEvent* ev){
-		if (!images.ContainsKey(id))
+		if (!m_images.ContainsKey(id))
 			return;
 
 		switch (Mode())
 		{
-		//case FEATURE_CATCH:
-		//	if (ev->type() == QEvent::MouseButtonRelease)
-		//		FeatureCatch(id, (QMouseEvent*)ev);
-		//	break;
 		case GCD_CATCH:
 			switch (ev->type())
 			{
 			case  QEvent::MouseButtonPress:
-				mouseDown = true;
-				lastMouseButton = ((QMouseEvent*)ev)->button();
+				m_mouseDown = true;
+				m_lastMouseButton = ((QMouseEvent*)ev)->button();
 				GCD_Catch(id, (QMouseEvent*)ev, Mode() != GCD_CATCH);
 				break;
 			case QEvent::MouseMove:
-				if (mouseDown)
+				if (m_mouseDown)
 					GCD_Catch(id, (QMouseEvent*)ev, Mode() != GCD_CATCH);
 				break;
 			case QEvent::MouseButtonRelease:
-				mouseDown = false;
+				m_mouseDown = false;
 			default:
 				break;
 			}
@@ -174,42 +169,49 @@ namespace IS{
 	}
 	void SegmentViewer::DealModeMenuEvent(QAction* obj, QEvent* ev){
 		if (ev->type() == QEvent::ActionChanged){
-			for (int i = 0; i < modemenu.Count(); i++){
-				if (obj != modemenu[i])
-					SetActionChecked(modemenu[i], false);
+			for (int i = 0; i < m_modemenu.Count(); i++){
+				if (obj != m_modemenu[i])
+					SetActionChecked(m_modemenu[i], false);
 			}
 		}
 	}
 	bool SegmentViewer::DealToolMenuEvent(QObject *obj, QEvent* ev){
 		if (ev->type() == QEvent::ActionChanged){
-			if (obj == ui.file_open){
+			if (obj == m_ui.file_open){
 				OpenFile();
-				SetActionChecked(ui.file_open, false);
+				SetActionChecked(m_ui.file_open, false);
 				return true;
 			}
-			if (obj == ui.tools_GCD_Clear){
-				if (images.ContainsKey(ID_GRAY))
-					ClearPaint(ID_GRAY);
-				if (images.ContainsKey(ID_SRC))
+			if (obj == m_ui.tools_GCD_Clear){
+				if (m_images.ContainsKey(ID_SRC))
 					ClearPaint(ID_SRC);
-				SetActionChecked(ui.tools_GCD_Clear, false);
+				SetActionChecked(m_ui.tools_GCD_Clear, false);
 				return true;
 			}
-			if (obj == ui.tools_GCD_Genrate){
+			if (obj == m_ui.tools_GCD_Genrate){
 				GenerateGrabCut();
-				SetActionChecked(ui.tools_GCD_Genrate, false);
+				SetActionChecked(m_ui.tools_GCD_Genrate, false);
 				return true;
 			}
 		}
 		return false;
 	}
+	void SegmentViewer::DealResolutionMenuEvent(QObject *obj, QEvent* ev){
+		if (ev->type() == QEvent::ActionChanged){
+			for (int i = 0; i < m_resolution.Count(); i++){
+				if (obj == m_resolution[i])
+					GC_DOWN_SAMPLE_CNT = i ;
+				SetActionChecked(m_resolution[i], obj == m_resolution[i]);
+			}
+		}
+	}
 
 	void SegmentViewer::ScaleImage(int id, float delta){
-		if (!images.ContainsKey(id)){
+		if (!m_images.ContainsKey(id)){
 			//DebugLog((char*)("Image id not exist(id:" + id + ')'));
 			return;
 		}
-		ImageData* data = images[id];
+		ImageData* data = m_images[id];
 		float newScale = data->scale + delta;
 		if (newScale<SCALE_MIN || newScale>SCALE_MAX)
 			return;
@@ -222,110 +224,72 @@ namespace IS{
 		data->pool->resize(newWidth, newHeight);
 	}
 	void SegmentViewer::ScrollImage(int id, float deltaX, float deltaY){
-		if (!images.ContainsKey(id)){
+		if (!m_images.ContainsKey(id)){
 			return;
 		}
-		ImageData* data = images[id];
+		ImageData* data = m_images[id];
 		data->scroll->horizontalScrollBar()->setValue(data->scroll->horizontalScrollBar()->value() - deltaX);
 		data->scroll->verticalScrollBar()->setValue(data->scroll->verticalScrollBar()->value() - deltaY);
 	}
 
-	//This function is removed
-	void SegmentViewer::FeatureCatch(int id, QMouseEvent* ev){
-		//id = ID_GRAY;
-		//ImageData* data = images[id];
-		//QImage image = data->pixmap.toImage();
-		//uchar bright = qGray(image.pixel(ev->x() / data->scale, ev->y() / data->scale));
-
-		//SegmentManager* segMgr = SegmentManager::Instance();
-		//IplImage* gray = segMgr->GrayImage();
-
-		//if (ev->button() == Qt::LeftButton){
-		//	IplImage* division = segMgr->GetThreeDivision(gray, bright, segMgr->BottomValue(), segMgr->TopTolerance(), segMgr->BottomTolerance());
-		//	RegisterImage(ID_DIVISION, division);
-		//	ui.tools_featureCatchOn->setChecked(false);
-		//}
-		//else if (ev->button() == Qt::RightButton){
-		//	IplImage* division = segMgr->GetThreeDivision(gray, segMgr->TopValue(), bright, segMgr->TopTolerance(), segMgr->BottomTolerance());
-		//	RegisterImage(ID_DIVISION, division);
-		//	ui.tools_featureCatchOn->setChecked(false);
-		//}
-	}
-
 	void SegmentViewer::GCD_Catch(int id, QMouseEvent* ev, bool isPr){
-		ImageData* data = images[id];
+		ImageData* data = m_images[id];
 		int realX = ev->x() /data->scale;
 		int realY = ev->y()/data->scale;
-		if (lastMouseButton == Qt::LeftButton){
-			if (!isPr){
-				DrawPoint(id, realX, realY, Qt::red);
-				fgdPixels.Add(QPoint(realX, realY));
-			}
-			else{
-				DrawPoint(id, realX, realY, Qt::darkRed);
-				prFgdPixels.Add(QPoint(realX, realY));
-			}
+		if (m_lastMouseButton == Qt::LeftButton){
+			DrawPoint(id, realX, realY, isPr ? Qt::darkRed : Qt::red);
+			m_segMgr->DrawMaskPoint(Vector2(realX, realY), GC_POINT_RADIUS, isPr ? cv::GC_PR_FGD : cv::GC_FGD);
 		}
-		else if (lastMouseButton == Qt::RightButton){
-			if (!isPr){
-				DrawPoint(id, realX, realY, Qt::blue);
-				bgdPixels.Add(QPoint(realX, realY));
-			}
-			else{
-				DrawPoint(id, realX, realY, Qt::darkBlue);
-				prBgdPixels.Add(QPoint(realX, realY));
-			}
+		else if (m_lastMouseButton == Qt::RightButton){
+			DrawPoint(id, realX, realY, isPr ? Qt::darkBlue : Qt::blue);
+			m_segMgr->DrawMaskPoint(Vector2(realX, realY), GC_POINT_RADIUS, isPr ? cv::GC_PR_BGD : cv::GC_BGD);
 		}
 	}
 
 	void SegmentViewer::DrawPoint(int id, int x,int y,int color){
-		ImageData* data = images[id];
+		ImageData* data = m_images[id];
 		QImage image = data->pixmap.toImage(); 
 		QPainter painter;
 		painter.begin(&image);
 		painter.setBrush(QBrush((Qt::GlobalColor)color));
 		painter.setPen(QPen((Qt::GlobalColor)color));
-		painter.drawEllipse(x, y, GCD_POINT_RADIUS * 2, GCD_POINT_RADIUS * 2);
+		painter.drawEllipse(x, y, GC_POINT_RADIUS * 2, GC_POINT_RADIUS * 2);
 		painter.end();
 		data->pixmap = QPixmap::fromImage(image);
 		data->label->setPixmap(data->pixmap.scaled(data->label->pixmap()->size()));
 	}
 
 	void SegmentViewer::OpenFile(){
-		SegmentManager* segMgr = SegmentManager::Instance();
 		QString filename = QFileDialog::getOpenFileName(this,
 			tr("Open Image"), "/", tr("Image Files (*.png *.jpg *.bmp *.jpeg)"));
 		if (!filename.isEmpty()){
 			QByteArray ba = filename.toLatin1();
 			char *c_filename = ba.data();
-			segMgr->LoadSrcImage(c_filename);
-			RegisterImage(SegmentViewer::ID_SRC, segMgr->SrcImage());
-			RegisterImage(SegmentViewer::ID_DIVISION, segMgr->RetImage());
+			m_segMgr->LoadSrcImage(c_filename);
+			RegisterImage(SegmentViewer::ID_SRC, m_segMgr->SrcImage());
+			RegisterImage(SegmentViewer::ID_DST, m_segMgr->DstImage());
 			ClearPaint(ID_SRC);
+			for (int i = 0; i < m_modemenu.Count(); i++){
+				SetActionChecked(m_modemenu[i], false);
+			}
 		}
 	}
 	void SegmentViewer::ClearPaint(int id){
-		ImageData* data = images[id];
+		ImageData* data = m_images[id];
 		data->pixmap = data->pixmap_origin;
 		data->label->setPixmap(data->pixmap.scaled(data->label->pixmap()->size()));
-		fgdPixels.Clear();
-		bgdPixels.Clear();
-		prFgdPixels.Clear();
-		prBgdPixels.Clear();
+		m_segMgr->ClearMask();
 	}
 	void SegmentViewer::GenerateGrabCut(){
-		if (fgdPixels.Count() == 0)
-			return;
-		SegmentManager* segMgr = SegmentManager::Instance();
-		if (segMgr->SrcImage() == NULL)
+		if (m_segMgr->SrcImage() == NULL)
 			return;
 		QMessageBox* msgBox=new QMessageBox(this);
 		msgBox->setAttribute(Qt::WA_DeleteOnClose);
 		msgBox->setWindowTitle(tr("Processing..."));
 		msgBox->show();
-		IplImage* division = segMgr->GetGrabCut();
-		RegisterImage(ID_DIVISION, division);
-		segMgr->SaveDstImage(NULL);
+		m_segMgr->GenerateGrabCut(GC_ITE_CNT, GC_DOWN_SAMPLE_CNT);
+		RegisterImage(ID_DST, m_segMgr->DstImage());
+		m_segMgr->SaveDstImage(NULL);
 		msgBox->close();
 	}
 
@@ -335,20 +299,20 @@ namespace IS{
 		switch (Mode())
 		{
 		case VIEW:{
-			List<int> keys = images.Keys();
+			List<int> keys = m_images.Keys();
 			for (int i = 0; i < keys.Count(); i++){
-				if (obj == images[keys[i]]->scroll->viewport()){
-					DealViewEvent(images[keys[i]]->id, ev);
+				if (obj == m_images[keys[i]]->scroll->viewport()){
+					DealViewEvent(m_images[keys[i]]->id, ev);
 					return true;
 				}
 			}
 		}
 			break;
 		case GCD_CATCH:{
-			List<int> keys = images.Keys();
+			List<int> keys = m_images.Keys();
 			for (int i = 0; i < keys.Count(); i++){
-				if (obj == images[keys[i]]->label){
-					DealCatchEvent(images[keys[i]]->id, ev);
+				if (obj == m_images[keys[i]]->label){
+					DealCatchEvent(m_images[keys[i]]->id, ev);
 					return false;
 				}
 			}
@@ -357,10 +321,15 @@ namespace IS{
 		default:
 			break;
 		}
-		for (int i = 0; i < modemenu.Count(); i++)
-			if (modemenu[i] == obj){
+		for (int i = 0; i < m_modemenu.Count(); i++)
+			if (m_modemenu[i] == obj){
 				DealModeMenuEvent((QAction*)obj, ev);
 				return false;
+			}
+		for (int i = 0; i < m_resolution.Count(); i++)
+			if (m_resolution[i] == obj){
+				DealResolutionMenuEvent((QAction*)obj, ev);
+				return true;
 			}
 		if (DealToolMenuEvent(obj, ev))
 			return true;
