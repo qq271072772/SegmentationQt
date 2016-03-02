@@ -301,6 +301,7 @@ namespace IS{
 			segMgr->LoadSrcImage(c_filename);
 			RegisterImage(SegmentViewer::ID_SRC, segMgr->SrcImage());
 			RegisterImage(SegmentViewer::ID_DIVISION, segMgr->RetImage());
+			ClearPaint(ID_SRC);
 		}
 	}
 	void SegmentViewer::ClearPaint(int id){
@@ -322,7 +323,7 @@ namespace IS{
 		msgBox->setAttribute(Qt::WA_DeleteOnClose);
 		msgBox->setWindowTitle(tr("Processing..."));
 		msgBox->show();
-		IplImage* division = segMgr->GetGrabCut(segMgr->SrcImage());
+		IplImage* division = segMgr->GetGrabCut();
 		RegisterImage(ID_DIVISION, division);
 		segMgr->SaveDstImage(NULL);
 		msgBox->close();

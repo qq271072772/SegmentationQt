@@ -18,12 +18,15 @@ namespace IS {
 			const int MAX_COLOR = 256;
 			const int MAX_TOLERANCE = 100;
 
-			const int GCD_ITE_COUNT = 5;
+			const int GCD_ITE_COUNT = 10;
+
+			const int DOWN_SAMPLE_CNT = 2;
 
 			int brightness[256];
 
 			
 			IplImage *srcImg=NULL,*divisionImg = NULL, *grayImg = NULL;
+			IplImage *srcCpImg = NULL;
 			int topValue, bottomValue, topToleranceValue, bottomToleranceValue;
 
 			static SegmentManager* instance;
@@ -36,6 +39,9 @@ namespace IS {
 					cvReleaseImage(&img);
 				}
 			}
+
+			IplImage* DownSample(IplImage* src, int cnt = 1);
+			IplImage* UpSample(IplImage* src, int cnt = 1);
 
 		public:
 
@@ -54,7 +60,7 @@ namespace IS {
 				return grayImg;
 			}
 			IplImage* SrcImage(){
-				return srcImg;
+				return srcCpImg;
 			}
 			IplImage* RetImage(){
 				return divisionImg;
@@ -78,7 +84,7 @@ namespace IS {
 			IplImage* ConvertToGrayImage(IplImage* src);
 
 			//get grab cut result
-			IplImage* GetGrabCut(IplImage* src);
+			IplImage* GetGrabCut();
 
 			void ReleaseAll();
 	};

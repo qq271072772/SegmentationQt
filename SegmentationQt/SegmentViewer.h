@@ -56,7 +56,7 @@ namespace IS{
 		static const int ID_GRAY = 1;
 		static const int ID_DIVISION = 2;
 
-		static const int GCD_POINT_RADIUS = 5;
+		static const int GCD_POINT_RADIUS = 8;
 		static const int GCD_POINT_THICKNESS = 0;
 
 		static const float SCALE_MIN;
@@ -73,16 +73,16 @@ namespace IS{
 
 		void RegisterImage(int id, IplImage* cvImg);
 
-		List<QPoint> FgdPixels(){
+		List<QPoint>& FgdPixels(){
 			return fgdPixels;
 		}
-		List<QPoint> BgdPixels(){
+		List<QPoint>& BgdPixels(){
 			return bgdPixels;
 		}
-		List<QPoint> PrFgdPixels(){
+		List<QPoint>& PrFgdPixels(){
 			return prFgdPixels;
 		}
-		List<QPoint> PrBgdPixels(){
+		List<QPoint>& PrBgdPixels(){
 			return prBgdPixels;
 		}
 
