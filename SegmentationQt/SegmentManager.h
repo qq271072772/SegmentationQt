@@ -7,6 +7,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include "Utility.h"
+#include "ImageHelper.h"
 
 using namespace std;
 using namespace Utility;
@@ -40,6 +41,7 @@ namespace IS {
 			}
 			IplImage* DownSample(IplImage* src, int cnt = 1);
 			IplImage* UpSample(IplImage* src, int cnt = 1);
+			void DrawMask(IplImage* src, IplImage* mask);
 
 		public:
 

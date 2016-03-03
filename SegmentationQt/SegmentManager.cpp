@@ -39,6 +39,18 @@ namespace IS {
 		}
 		return cur;
 	}
+	void SegmentManager::DrawMask(IplImage* src, IplImage* mask){
+		if (src == NULL || mask==NULL)
+			return;
+		if (mask->width != src->width || mask->height != src->height)
+			return;
+		for (int i = 0; i < src->height; i++)
+			for (int j = 0; j < src->width; j++){
+				uchar label = ImageHelper::SampleElem(mask, j, i);
+				RGB value = ImageHelper::SampleElemRGB(src, j, i);
+				ImageHelper::SetElemRGB(src, j, i, label <128 ? value : RGB(255, 255, 255));
+			}
+	}
 
 	//Public
 
@@ -64,7 +76,13 @@ namespace IS {
 		}
 	}
 	void SegmentManager::SaveDstImage(char* filename){
-		cvSaveImage("output.jpg", m_dstImg);
+		if (m_dstImg == NULL)
+			return;
+		IplImage* output = ImageHelper::CreateCopy(m_srcImg);
+		DrawMask(output, m_dstImg);
+		cvSaveImage("output.jpg", output);
+		ImageHelper::ReleaseImage(&output);
+		cvSaveImage("grabcut.jpg", m_dstImg);
 	}
 
 	IplImage* SegmentManager::ConvertToGrayImage(IplImage* src) {

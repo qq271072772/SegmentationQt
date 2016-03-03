@@ -160,6 +160,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="ImageHelper.cpp" />
     <ClCompile Include="SegmentViewer.cpp" />
     <ClCompile Include="SegmentManager.cpp" />
   </ItemGroup>
@@ -205,6 +206,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_SegmentViewer.h" />
+    <ClInclude Include="ImageHelper.h" />
     <ClInclude Include="SegmentManager.h" />
     <ClInclude Include="Utility.h" />
   </ItemGroup>
