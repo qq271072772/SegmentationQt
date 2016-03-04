@@ -7,6 +7,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include "Utility.h"
+#include "IOHelper.h"
 #include "ImageHelper.h"
 #include "EdgePicker.h"
 

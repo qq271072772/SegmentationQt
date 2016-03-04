@@ -76,14 +76,8 @@ namespace IS {
 		if (m_dstImg == NULL)
 			return;
 		char edgeFilename[_MAX_PATH];
-		strcpy_s(edgeFilename, filename);
-		char* token, *nextToken;
-		token = strtok_s(edgeFilename, ".", &nextToken);
-		token = strtok_s(edgeFilename, "/", &nextToken);
-		while (strchr(nextToken, '/') != NULL)
-			token = strtok_s(NULL, "/", &nextToken);
-		token = strtok_s(NULL, "/", &nextToken);
-		strcpy_s(edgeFilename, token);
+		string prefix = IOHelper::SplifPrefix(filename);
+		strcpy_s(edgeFilename, prefix.c_str());
 		strcat_s(edgeFilename, ".txt");
 
 		IplImage* src = ImageHelper::CreateCopy(m_srcImg);
