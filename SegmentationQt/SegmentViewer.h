@@ -72,6 +72,8 @@ namespace IS{
 
 	private:
 
+		char m_filename[_MAX_PATH];
+
 		int GC_ITE_CNT = 10;
 		int GC_DOWN_SAMPLE_CNT = 2;
 		int GC_POINT_RADIUS = 8;

@@ -39,16 +39,13 @@ namespace IS {
 		}
 		return cur;
 	}
-	void SegmentManager::DrawMask(IplImage* src, IplImage* mask){
-		if (src == NULL || mask==NULL)
-			return;
-		if (mask->width != src->width || mask->height != src->height)
+	void SegmentManager::RefineGrabCut(IplImage* src){
+		if (src == NULL || src->nChannels != 1)
 			return;
 		for (int i = 0; i < src->height; i++)
 			for (int j = 0; j < src->width; j++){
-				uchar label = ImageHelper::SampleElem(mask, j, i);
-				RGB value = ImageHelper::SampleElemRGB(src, j, i);
-				ImageHelper::SetElemRGB(src, j, i, label <128 ? value : RGB(255, 255, 255));
+				uchar label = ImageHelper::SampleElem(src, j, i);
+				ImageHelper::SetElem(src, j, i, label < 128 ? 0 : 255);
 			}
 	}
 
@@ -78,11 +75,29 @@ namespace IS {
 	void SegmentManager::SaveDstImage(char* filename){
 		if (m_dstImg == NULL)
 			return;
-		IplImage* output = ImageHelper::CreateCopy(m_srcImg);
-		DrawMask(output, m_dstImg);
-		cvSaveImage("output.jpg", output);
-		ImageHelper::ReleaseImage(&output);
+		char edgeFilename[_MAX_PATH];
+		strcpy_s(edgeFilename, filename);
+		char* token, *nextToken;
+		token = strtok_s(edgeFilename, ".", &nextToken);
+		token = strtok_s(edgeFilename, "/", &nextToken);
+		while (strchr(nextToken, '/') != NULL)
+			token = strtok_s(NULL, "/", &nextToken);
+		token = strtok_s(NULL, "/", &nextToken);
+		strcpy_s(edgeFilename, token);
+		strcat_s(edgeFilename, ".txt");
+
+		IplImage* src = ImageHelper::CreateCopy(m_srcImg);
+		IplImage* dst = ImageHelper::CreateCopy(m_dstImg);
+
+		EP::EdgePicker* edgePicker = EP::EdgePicker::Instance();
+		List<List<Vector2>> edges = edgePicker->GenerateEdgeData(dst);
+		edgePicker->DrawEdges(src, edges, RGB(255, 255, 255));
+		edgePicker->OutputEdges(edgeFilename, m_srcImg, edges);
+		cvSaveImage("source.jpg", src);
 		cvSaveImage("grabcut.jpg", m_dstImg);
+
+		ImageHelper::ReleaseImage(&src);
+		ImageHelper::ReleaseImage(&dst);
 	}
 
 	IplImage* SegmentManager::ConvertToGrayImage(IplImage* src) {
@@ -116,6 +131,7 @@ namespace IS {
 
 		m_dstImg = EnsureImg(m_dstImg);
 		m_dstImg = UpSample(downMaskImg, downSampleCnt);
+		//RefineGrabCut(m_dstImg);
 		m_activeImgs.Add(m_dstImg);
 
 

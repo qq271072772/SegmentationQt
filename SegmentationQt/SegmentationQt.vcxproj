@@ -141,6 +141,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="EdgePicker.cpp" />
     <ClCompile Include="Entrance.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_SegmentViewer.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -161,6 +162,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="ImageHelper.cpp" />
+    <ClCompile Include="IOHelper.cpp" />
     <ClCompile Include="SegmentViewer.cpp" />
     <ClCompile Include="SegmentManager.cpp" />
   </ItemGroup>
@@ -205,8 +207,10 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="EdgePicker.h" />
     <ClInclude Include="GeneratedFiles\ui_SegmentViewer.h" />
     <ClInclude Include="ImageHelper.h" />
+    <ClInclude Include="IOHelper.h" />
     <ClInclude Include="SegmentManager.h" />
     <ClInclude Include="Utility.h" />
   </ItemGroup>

@@ -265,6 +265,7 @@ namespace IS{
 		if (!filename.isEmpty()){
 			QByteArray ba = filename.toLatin1();
 			char *c_filename = ba.data();
+			strcpy_s(m_filename, c_filename);
 			m_segMgr->LoadSrcImage(c_filename);
 			RegisterImage(SegmentViewer::ID_SRC, m_segMgr->SrcImage());
 			RegisterImage(SegmentViewer::ID_DST, m_segMgr->DstImage());
@@ -289,7 +290,7 @@ namespace IS{
 		msgBox->show();
 		m_segMgr->GenerateGrabCut(GC_ITE_CNT, GC_DOWN_SAMPLE_CNT);
 		RegisterImage(ID_DST, m_segMgr->DstImage());
-		m_segMgr->SaveDstImage(NULL);
+		m_segMgr->SaveDstImage(m_filename);
 		msgBox->close();
 	}
 

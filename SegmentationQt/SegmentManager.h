@@ -8,6 +8,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include "Utility.h"
 #include "ImageHelper.h"
+#include "EdgePicker.h"
 
 using namespace std;
 using namespace Utility;
@@ -41,7 +42,7 @@ namespace IS {
 			}
 			IplImage* DownSample(IplImage* src, int cnt = 1);
 			IplImage* UpSample(IplImage* src, int cnt = 1);
-			void DrawMask(IplImage* src, IplImage* mask);
+			void RefineGrabCut(IplImage* src);
 
 		public:
 
