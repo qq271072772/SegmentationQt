@@ -3,9 +3,9 @@
 
 #include <string>
 #include <string.h>
-
-using namespace std;
-
+#include <windows.h>
+#include <strsafe.h>
+#include "Utility.h"
 
 namespace Utility{
 	class IOHelper{
@@ -71,6 +71,33 @@ namespace Utility{
 			else if (pos2 != NULL)
 				strcpy_s(buffer, pos2 + 1);
 			return string(buffer);
+		}
+
+		static void CurrentDirectory(TCHAR* buffer){
+			GetCurrentDirectory(MAX_PATH, buffer);
+		}
+		static List<TCHAR*> ListDirectoryFiles(TCHAR* dir){
+			TCHAR folder[MAX_PATH];
+			StringCchCopy(folder, MAX_PATH, dir);
+			StringCchCat(folder, MAX_PATH, TEXT("*"));
+			List<TCHAR*> files;
+			WIN32_FIND_DATA fd;
+			HANDLE hFind = ::FindFirstFile(folder, &fd);
+			if (hFind != INVALID_HANDLE_VALUE) {
+				do {
+					if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+						TCHAR* file = new TCHAR[MAX_PATH];
+						StringCchCopy(file, MAX_PATH, fd.cFileName);
+						files.Add(LPTSTR(file));
+					}
+				} while (::FindNextFile(hFind, &fd));
+				::FindClose(hFind);
+			}
+			return files;
+		}
+		static void ReleaseDirectoryList(List<TCHAR*>& list){
+			for (int i = 0; i < list.Count(); i++)
+				delete[] list[i];
 		}
 	};
 }

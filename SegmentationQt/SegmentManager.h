@@ -25,7 +25,8 @@ namespace IS {
 
 			int brightness[256];
 			
-			IplImage *m_srcImg = NULL, *m_dstImg = NULL, *m_srcCpImg = NULL;
+			IplImage *m_srcImg = NULL, *m_dstImg = NULL;
+			IplImage *m_grabcutImg = NULL;
 			cv::Mat m_mask;
 			bool m_maskInited;
 
@@ -53,7 +54,7 @@ namespace IS {
 			static SegmentManager* Instance();
 
 			IplImage* SrcImage(){
-				return m_srcCpImg;
+				return m_srcImg;
 			}
 			IplImage* DstImage(){
 				return m_dstImg;

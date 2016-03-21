@@ -60,22 +60,21 @@ namespace IS{
 			m_images.Remove(id);
 		}
 
-		QImage qImg;
+		IplImage* cp = ImageHelper::CreateCopy(cvImg);
+		if (cvImg->nChannels == 3)
+			cvCvtColor(cp, cp, CV_BGR2RGB);
+
+		QImage::Format fomat = cvImg->nChannels == 1 ? QImage::Format_Grayscale8 : QImage::Format_RGB888;
+		QImage qImg = QImage((uchar*)cp->imageData, cp->width, cp->height, cp->widthStep, fomat);
 		switch (id)
 		{
 		case ID_SRC:
-			qImg = QImage((uchar*)cvImg->imageData, cvImg->width, cvImg->height, cvImg->widthStep, QImage::Format_RGB888);
-
 			m_ui.label_gray->setFixedSize(qImg.width(), qImg.height());
 			m_ui.label_gray->setPixmap(QPixmap::fromImage(qImg));
-
-
 			m_ui.pool_gray->resize(qImg.width(), qImg.height());
-
 			m_images.Add(id,new ImageData(id, m_ui.label_gray, m_ui.pool_gray, m_ui.scrollview_gray));
 			break;
 		case ID_DST:
-			qImg = QImage((uchar*)cvImg->imageData, cvImg->width, cvImg->height, cvImg->widthStep, QImage::Format_Grayscale8);
 			m_ui.label_division->setFixedSize(qImg.width(), qImg.height());
 			m_ui.label_division->setPixmap(QPixmap::fromImage(qImg));
 			m_ui.pool_division->resize(qImg.width(), qImg.height());
@@ -86,6 +85,7 @@ namespace IS{
 		}
 		if (oldScale != 1)
 			ScaleImage(id, oldScale - 1);
+		ImageHelper::ReleaseImage(&cp);
 	}
 	void SegmentViewer::ReleaseAll(){
 		List<int> keys = m_images.Keys();
@@ -289,8 +289,8 @@ namespace IS{
 		msgBox->setWindowTitle(tr("Processing..."));
 		msgBox->show();
 		m_segMgr->GenerateGrabCut(GC_ITE_CNT, GC_DOWN_SAMPLE_CNT);
-		RegisterImage(ID_DST, m_segMgr->DstImage());
 		m_segMgr->SaveDstImage(m_filename);
+		RegisterImage(ID_DST, m_segMgr->DstImage());
 		msgBox->close();
 	}
 

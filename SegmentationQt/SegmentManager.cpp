@@ -57,15 +57,8 @@ namespace IS {
 		IplImage* ret = cvLoadImage(filename, CV_LOAD_IMAGE_COLOR);
 		if (ret != NULL){
 			m_srcImg = EnsureImg(m_srcImg);
-			m_srcCpImg = EnsureImg(m_srcCpImg);
-
 			m_srcImg = ret;
-			m_srcCpImg = cvCreateImage(CvSize(m_srcImg->width,m_srcImg->height),m_srcImg->depth,m_srcImg->nChannels);
-			cvCopy(m_srcImg, m_srcCpImg);
-			cvCvtColor(m_srcCpImg, m_srcCpImg, CV_BGR2RGB);
-
 			m_activeImgs.Add(m_srcImg);
-			m_activeImgs.Add(m_srcCpImg);
 
 			ConvertToGrayImage(m_srcImg);
 
@@ -73,25 +66,28 @@ namespace IS {
 		}
 	}
 	void SegmentManager::SaveDstImage(char* filename){
-		if (m_dstImg == NULL)
+		if (m_grabcutImg == NULL)
 			return;
 		char edgeFilename[_MAX_PATH];
 		string prefix = IOHelper::SplifPrefix(filename);
 		strcpy_s(edgeFilename, prefix.c_str());
 		strcat_s(edgeFilename, ".txt");
 
-		IplImage* src = ImageHelper::CreateCopy(m_srcImg);
-		IplImage* dst = ImageHelper::CreateCopy(m_dstImg);
+		IplImage* dst = ImageHelper::CreateCopy(m_srcImg);
+		IplImage* grabcut = ImageHelper::CreateCopy(m_grabcutImg);
 
 		EP::EdgePicker* edgePicker = EP::EdgePicker::Instance();
-		List<List<Vector2>> edges = edgePicker->GenerateEdgeData(dst);
-		edgePicker->DrawEdges(src, edges, RGB(255, 255, 255));
+		List<List<Vector2>> edges = edgePicker->GenerateEdgeData(grabcut);
+		edgePicker->DrawEdges(dst, edges, U_RGB(255, 255, 255));
 		edgePicker->OutputEdges(edgeFilename, m_srcImg, edges);
-		cvSaveImage("source.jpg", src);
-		cvSaveImage("grabcut.jpg", m_dstImg);
 
-		ImageHelper::ReleaseImage(&src);
-		ImageHelper::ReleaseImage(&dst);
+		m_dstImg = EnsureImg(m_dstImg);
+		m_dstImg = dst;
+		m_activeImgs.Add(m_dstImg);
+
+		cvSaveImage("grabcut.jpg", m_grabcutImg);
+
+		ImageHelper::ReleaseImage(&grabcut);
 	}
 
 	IplImage* SegmentManager::ConvertToGrayImage(IplImage* src) {
@@ -123,10 +119,10 @@ namespace IS {
 			}
 		}
 
-		m_dstImg = EnsureImg(m_dstImg);
-		m_dstImg = UpSample(downMaskImg, downSampleCnt);
-		//RefineGrabCut(m_dstImg);
-		m_activeImgs.Add(m_dstImg);
+		m_grabcutImg = EnsureImg(m_grabcutImg);
+		m_grabcutImg = UpSample(downMaskImg, downSampleCnt);
+		//RefineGrabCut(m_grabcutImg);
+		m_activeImgs.Add(m_grabcutImg);
 
 
 		cvReleaseImage(&downSrcImg);
